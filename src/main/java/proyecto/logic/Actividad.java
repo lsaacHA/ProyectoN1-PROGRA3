@@ -1,14 +1,16 @@
 package proyecto.logic;
 
-public class Categoria {
+public class Actividad {
     private String id;
+    private String nombre;
     private String descripcion;
 
-    public Categoria() {
+    public Actividad() {
     }
 
-    public Categoria(String id, String descripcion) {
+    public Actividad(String id, String nombre, String descripcion) {
         this.id = id;
+        this.nombre = nombre;
         this.descripcion = descripcion;
     }
 
@@ -18,6 +20,14 @@ public class Categoria {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getDescripcion() {
@@ -30,6 +40,6 @@ public class Categoria {
 
     @Override
     public String toString() {
-        return descripcion;
+        return nombre;
     }
 }
