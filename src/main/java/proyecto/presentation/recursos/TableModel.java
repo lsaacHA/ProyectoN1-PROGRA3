@@ -24,7 +24,7 @@ public class TableModel extends AbstractTableModel<Recurso> {
     protected Object getPropetyAt(Recurso element, int col) {
         switch (cols[col]) {
             case ID:
-                return element.getID();
+                return element.getId();
             case CATEGORIA:
                 return element.getCategoria();
             case DESCRIPCION:
