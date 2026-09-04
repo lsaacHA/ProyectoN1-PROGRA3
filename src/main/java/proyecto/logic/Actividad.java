@@ -1,16 +1,16 @@
 package proyecto.logic;
 
-public class Recurso {
+public class Actividad {
     private String id;
-    private Categoria categoria;
+    private String nombre;
     private String descripcion;
 
-    public Recurso() {
+    public Actividad() {
     }
 
-    public Recurso(String id, Categoria categoria, String descripcion) {
+    public Actividad(String id, String nombre, String descripcion) {
         this.id = id;
-        this.categoria = categoria;
+        this.nombre = nombre;
         this.descripcion = descripcion;
     }
 
@@ -22,12 +22,12 @@ public class Recurso {
         this.id = id;
     }
 
-    public Categoria getCategoria() {
-        return categoria;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getDescripcion() {
@@ -40,6 +40,6 @@ public class Recurso {
 
     @Override
     public String toString() {
-        return descripcion;
+        return nombre;
     }
 }

@@ -1,16 +1,14 @@
 package proyecto.logic;
 
-public class Recurso {
+public class Categoria {
     private String id;
-    private Categoria categoria;
     private String descripcion;
 
-    public Recurso() {
+    public Categoria() {
     }
 
-    public Recurso(String id, Categoria categoria, String descripcion) {
+    public Categoria(String id, String descripcion) {
         this.id = id;
-        this.categoria = categoria;
         this.descripcion = descripcion;
     }
 
@@ -20,14 +18,6 @@ public class Recurso {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Categoria getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
     }
 
     public String getDescripcion() {
