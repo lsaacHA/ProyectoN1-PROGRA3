@@ -7,7 +7,7 @@ import java.util.List;
 
 public class SolicitudReserva {
     private Funcionario funcionario;
-    private Actividad actividad;
+    private String actividad;
     private LocalDate fecha;
     private LocalTime horaInicio;
     private LocalTime horaFin;
@@ -19,7 +19,7 @@ public class SolicitudReserva {
 
     public SolicitudReserva(
             Funcionario funcionario,
-            Actividad actividad,
+            String actividad,
             LocalDate fecha,
             LocalTime horaInicio,
             LocalTime horaFin,
@@ -41,11 +41,11 @@ public class SolicitudReserva {
         this.funcionario = funcionario;
     }
 
-    public Actividad getActividad() {
+    public String getActividad() {
         return actividad;
     }
 
-    public void setActividad(Actividad actividad) {
+    public void setActividad(String actividad) {
         this.actividad = actividad;
     }
 
