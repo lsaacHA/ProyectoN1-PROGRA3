@@ -1,14 +1,6 @@
 package proyecto.logic;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlID;
-import jakarta.xml.bind.annotation.XmlSeeAlso;
-
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlSeeAlso(Funcionario.class)
 public class Usuario {
-    @XmlID
     private String id;
     private String clave;
     private Rol rol;
