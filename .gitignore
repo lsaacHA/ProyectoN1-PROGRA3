@@ -13,9 +13,6 @@ out/
 *.class
 *.log
 
-# Datos locales de ejecución
-/data/datos.xml
-
 # macOS
 .DS_Store
 
