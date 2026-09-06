@@ -8,7 +8,7 @@ import java.util.List;
 public class Reserva {
     private String id;
     private Funcionario funcionario;
-    private Actividad actividad;
+    private String actividad;
     private LocalDate fecha;
     private LocalTime horaInicio;
     private LocalTime horaFin;
@@ -23,7 +23,7 @@ public class Reserva {
     public Reserva(
             String id,
             Funcionario funcionario,
-            Actividad actividad,
+            String actividad,
             LocalDate fecha,
             LocalTime horaInicio,
             LocalTime horaFin,
@@ -56,11 +56,11 @@ public class Reserva {
         this.funcionario = funcionario;
     }
 
-    public Actividad getActividad() {
+    public String getActividad() {
         return actividad;
     }
 
-    public void setActividad(Actividad actividad) {
+    public void setActividad(String actividad) {
         this.actividad = actividad;
     }
 
