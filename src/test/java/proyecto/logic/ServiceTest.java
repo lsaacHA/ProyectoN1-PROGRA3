@@ -10,25 +10,27 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ServiceTest {
     @Test
-    void creaAdministradorInicialYPermiteLogin() throws Exception {
+    void creaUsuariosInicialesYPermiteLogin() throws Exception {
         Path archivo = Files.createTempDirectory("reservas-login-").resolve("datos.xml");
         Service service = new Service(archivo);
 
-        Usuario usuario = service.login("admin", "admin");
+        Usuario admin = service.login("111", "111");
+        Usuario funcionario = service.login("222", "222");
 
-        assertEquals(Rol.ADMINISTRADOR, usuario.getRol());
-        assertThrows(Exception.class, () -> service.login("admin", "incorrecta"));
+        assertEquals(Rol.ADMINISTRADOR, admin.getRol());
+        assertEquals(Rol.FUNCIONARIO, funcionario.getRol());
+        assertThrows(Exception.class, () -> service.login("111", "incorrecta"));
     }
 
     @Test
     void cambiaClaveYLaConservaEnXml() throws Exception {
         Path archivo = Files.createTempDirectory("reservas-clave-").resolve("datos.xml");
         Service service = new Service(archivo);
-        Usuario admin = service.login("admin", "admin");
+        Usuario admin = service.login("111", "111");
 
-        service.changePassword(admin, "admin", "nueva");
+        service.changePassword(admin, "111", "nueva");
 
         Service reloaded = new Service(archivo);
-        assertEquals("admin", reloaded.login("admin", "nueva").getId());
+        assertEquals("111", reloaded.login("111", "nueva").getId());
     }
 }

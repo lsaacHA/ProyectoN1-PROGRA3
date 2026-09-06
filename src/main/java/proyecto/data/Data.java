@@ -65,7 +65,10 @@ public class Data {
         if (Files.notExists(archivo)) {
             Data data = new Data();
             data.archivo = archivo;
-            data.usuarios.add(new Usuario("admin", "admin", Rol.ADMINISTRADOR));
+
+            data.usuarios.add(new Usuario("111", "111", Rol.ADMINISTRADOR));
+            data.funcionarios.add(new Funcionario("222", "Funcionario Inicial", "22222222"));
+
             data.store();
             return data;
         }

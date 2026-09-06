@@ -39,10 +39,16 @@ class DataIT {
         data.store();
 
         Data loaded = Data.load(archivo);
-        assertEquals(LocalDate.of(2026, 8, 14), loaded.getReservas().get(0).getFecha());
-        assertEquals(LocalTime.of(8, 0), loaded.getReservas().get(0).getHoraInicio());
+        Reserva loadedReserva = loaded.getReservas().get(0);
+        Funcionario loadedFuncionario = loaded.getFuncionarios().stream()
+                .filter(item -> "F001".equals(item.getId()))
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(LocalDate.of(2026, 8, 14), loadedReserva.getFecha());
+        assertEquals(LocalTime.of(8, 0), loadedReserva.getHoraInicio());
         assertSame(loaded.getCategorias().get(0), loaded.getRecursos().get(0).getCategoria());
-        assertSame(loaded.getFuncionarios().get(0), loaded.getReservas().get(0).getFuncionario());
+        assertSame(loadedFuncionario, loadedReserva.getFuncionario());
         assertTrue(Files.size(archivo) > 0);
     }
 }
