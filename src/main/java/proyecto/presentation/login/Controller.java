@@ -36,6 +36,35 @@ public class Controller implements ActionListener {
         }
     }
 
+    public void cambiarClave() {
+        String[] datos = view.solicitarCambioClave();
+        if (datos == null) {
+            return;
+        }
+
+        String id = datos[0].trim();
+        String claveActual = datos[1];
+        String claveNueva = datos[2];
+        String confirmacion = datos[3];
+
+        try {
+            if (claveNueva.isBlank()) {
+                throw new Exception("La clave nueva es obligatoria");
+            }
+            if (!claveNueva.equals(confirmacion)) {
+                throw new Exception("La confirmación no coincide con la clave nueva");
+            }
+
+            Usuario usuario = service.login(id, claveActual);
+            service.changePassword(usuario, claveActual, claveNueva);
+            view.setId(usuario.getId());
+            view.limpiarClave();
+            view.mostrarMensaje("La clave se cambió correctamente");
+        } catch (Exception exception) {
+            view.mostrarError(exception.getMessage());
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent event) {
         if (event.getSource() == view.getIngresarFld()) {
@@ -43,6 +72,8 @@ public class Controller implements ActionListener {
         } else if (event.getSource() == view.getCancelarFld()) {
             Sesion.cerrar();
             view.dispose();
+        } else if (event.getSource() == view.getCambiarClaveFld()) {
+            cambiarClave();
         }
     }
 }
