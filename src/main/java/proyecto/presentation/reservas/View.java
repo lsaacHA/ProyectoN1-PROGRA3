@@ -1,15 +1,28 @@
 package proyecto.presentation.reservas;
 
+import com.github.lgooddatepicker.components.DatePicker;
+import proyecto.logic.Categoria;
+import proyecto.logic.Reserva;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
-public class View {
+public class View implements PropertyChangeListener {
     private JPanel panel;
     private JPanel nuevaReservaPanel;
     private JPanel botonesPanel;
@@ -17,11 +30,10 @@ public class View {
     private JTextArea fraseFld;
     private JButton extraerFld;
     private JTextField actividadFld;
-    private JTextField fechaFld;
-    private JButton seleccionarFechaFld;
+    private DatePicker fechaFld;
     private JComboBox<String> horaInicioFld;
     private JComboBox<String> horaFinFld;
-    private JList<String> categoriasFld;
+    private JList<Categoria> categoriasFld;
     private JButton reservarFld;
     private JButton cancelarReservaFld;
     private JButton limpiarFld;
@@ -29,7 +41,91 @@ public class View {
     private JScrollPane reservasScroll;
     private JButton imprimirFld;
 
-    public JPanel getPanel() {
-        return panel;
+    private static final LocalTime[] HORAS_INICIO = {
+            LocalTime.of(8, 0), LocalTime.of(9, 0), LocalTime.of(10, 0), LocalTime.of(11, 0),
+            LocalTime.of(13, 0), LocalTime.of(14, 0), LocalTime.of(15, 0), LocalTime.of(16, 0)
+    };
+    private static final LocalTime[] HORAS_FIN = {
+            LocalTime.of(9, 0), LocalTime.of(10, 0), LocalTime.of(11, 0), LocalTime.NOON,
+            LocalTime.of(14, 0), LocalTime.of(15, 0), LocalTime.of(16, 0), LocalTime.of(17, 0)
+    };
+
+    public View() {
+        extraerFld.setEnabled(false);
+        cancelarReservaFld.setEnabled(false);
+        fechaFld.setDate(LocalDate.now().plusDays(1));
+        reservasFld.getSelectionModel().addListSelectionListener(event ->
+                cancelarReservaFld.setEnabled(reservasFld.getSelectedRow() >= 0));
     }
+
+    public void setController(ActionListener controller) {
+        reservarFld.addActionListener(controller);
+        cancelarReservaFld.addActionListener(controller);
+        limpiarFld.addActionListener(controller);
+        imprimirFld.addActionListener(controller);
+        extraerFld.addActionListener(controller);
+    }
+
+    public String getActividad() { return actividadFld.getText(); }
+    public LocalDate getFecha() { return fechaFld.getDate(); }
+    public LocalTime getHoraInicio() { return HORAS_INICIO[horaInicioFld.getSelectedIndex()]; }
+    public LocalTime getHoraFin() { return HORAS_FIN[horaFinFld.getSelectedIndex()]; }
+    public List<Categoria> getCategoriasSeleccionadas() { return categoriasFld.getSelectedValuesList(); }
+
+    public Reserva getReservaSeleccionada() {
+        int fila = reservasFld.getSelectedRow();
+        if (fila < 0) return null;
+        int modelo = reservasFld.convertRowIndexToModel(fila);
+        return ((TableModel) reservasFld.getModel()).getRowAt(modelo);
+    }
+
+    public void limpiar() {
+        fraseFld.setText("");
+        actividadFld.setText("");
+        fechaFld.setDate(LocalDate.now().plusDays(1));
+        horaInicioFld.setSelectedIndex(0);
+        horaFinFld.setSelectedIndex(0);
+        categoriasFld.clearSelection();
+        reservasFld.clearSelection();
+        actividadFld.requestFocusInWindow();
+    }
+
+    public void mostrarMensaje(String mensaje) {
+        JOptionPane.showMessageDialog(panel, mensaje, "Sistema de reservas", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(panel, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void imprimir() {
+        try {
+            reservasFld.print(JTable.PrintMode.FIT_WIDTH);
+        } catch (Exception exception) {
+            mostrarError("No se pudo imprimir: " + exception.getMessage());
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        if (Model.LIST.equals(event.getPropertyName())) {
+            Model model = (Model) event.getSource();
+            int[] columnas = {TableModel.ID, TableModel.ACTIVIDAD, TableModel.FECHA,
+                    TableModel.HORARIO, TableModel.RECURSOS, TableModel.ESTADO};
+            reservasFld.setModel(new TableModel(columnas, model.getList()));
+        }
+        if (Model.CATEGORIES.equals(event.getPropertyName())) {
+            Model model = (Model) event.getSource();
+            DefaultListModel<Categoria> lista = new DefaultListModel<>();
+            model.getCategories().forEach(lista::addElement);
+            categoriasFld.setModel(lista);
+        }
+    }
+
+    public JPanel getPanel() { return panel; }
+    public JButton getExtraerFld() { return extraerFld; }
+    public JButton getReservarFld() { return reservarFld; }
+    public JButton getCancelarReservaFld() { return cancelarReservaFld; }
+    public JButton getLimpiarFld() { return limpiarFld; }
+    public JButton getImprimirFld() { return imprimirFld; }
 }
