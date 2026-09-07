@@ -1,5 +1,9 @@
 package proyecto.logic;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Funcionario extends Usuario {
     private String nombre;
     private String telefono;
