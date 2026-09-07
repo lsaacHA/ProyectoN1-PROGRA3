@@ -11,14 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ServiceTest {
     @Test
     void creaUsuariosInicialesYPermiteLogin() throws Exception {
-        Path archivo = Files.createTempDirectory("reservas-login-").resolve("datos.xml");
-        Service service = new Service(archivo);
-
-        Usuario admin = service.login("111", "111");
-        Usuario funcionario = service.login("222", "222");
-
-        assertEquals(Rol.ADMINISTRADOR, admin.getRol());
-        assertEquals(Rol.FUNCIONARIO, funcionario.getRol());
+        Service service = nuevoService();
+        assertEquals(Rol.ADMINISTRADOR, service.login("111", "111").getRol());
+        assertEquals(Rol.FUNCIONARIO, service.login("222", "222").getRol());
         assertThrows(Exception.class, () -> service.login("111", "incorrecta"));
     }
 
@@ -26,11 +21,34 @@ class ServiceTest {
     void cambiaClaveYLaConservaEnXml() throws Exception {
         Path archivo = Files.createTempDirectory("reservas-clave-").resolve("datos.xml");
         Service service = new Service(archivo);
-        Usuario admin = service.login("111", "111");
+        service.changePassword(service.login("111", "111"), "111", "nueva");
+        assertEquals("111", new Service(archivo).login("111", "nueva").getId());
+    }
 
-        service.changePassword(admin, "111", "nueva");
+    @Test
+    void creaBuscaModificaYBorraFuncionario() throws Exception {
+        Path archivo = Files.createTempDirectory("funcionarios-crud-").resolve("datos.xml");
+        Service service = new Service(archivo);
+        Funcionario creado = service.guardarFuncionario(null, "333", "María Pérez", "8888-9999");
+        assertEquals(creado, service.buscarFuncionarios("33", "maría").get(0));
 
-        Service reloaded = new Service(archivo);
-        assertEquals("111", reloaded.login("111", "nueva").getId());
+        service.guardarFuncionario(creado, "333", "María Sol Pérez", "2222-3333");
+        assertEquals("María Sol Pérez", new Service(archivo).buscarFuncionarios("333", "").get(0).getNombre());
+
+        service.borrarFuncionario(creado);
+        assertEquals(0, service.buscarFuncionarios("333", "").size());
+    }
+
+    @Test
+    void rechazaIdRepetidoYDatosInvalidos() throws Exception {
+        Service service = nuevoService();
+        assertThrows(Exception.class,
+                () -> service.guardarFuncionario(null, "222", "Otro", "88889999"));
+        assertThrows(Exception.class,
+                () -> service.guardarFuncionario(null, "333", "", "teléfono"));
+    }
+
+    private Service nuevoService() throws Exception {
+        return new Service(Files.createTempDirectory("funcionarios-").resolve("datos.xml"));
     }
 }
