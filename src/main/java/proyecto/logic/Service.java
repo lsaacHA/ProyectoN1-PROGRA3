@@ -104,4 +104,54 @@ public class Service {
     public List<Categoria> getCategorias() { return data.getCategorias(); }
     public List<Recurso> getRecursos() { return data.getRecursos(); }
     public List<Reserva> getReservas() { return data.getReservas(); }
+
+
+    public List<Categoria> buscarCategorias(String descripcion) {
+        String filtro = descripcion == null ? "" : descripcion.trim().toLowerCase();
+        return data.getCategorias().stream()
+                .filter(c -> filtro.isEmpty() || c.getDescripcion().toLowerCase().contains(filtro))
+                .sorted(Comparator.comparing(Categoria::getId))
+                .toList();
+    }
+
+    public Categoria guardarCategoria(Categoria original, String descripcion) throws Exception {
+        if (descripcion == null || descripcion.isBlank())
+            throw new Exception("La descripción es obligatoria");
+        String descripcionLimpia = descripcion.trim();
+
+        if (original == null) {
+            Categoria nueva = new Categoria(generarIdCategoria(), descripcionLimpia);
+            data.getCategorias().add(nueva);
+            store();
+            return nueva;
+        }
+
+        original.setDescripcion(descripcionLimpia);
+        store();
+        return original;
+    }
+
+    public void borrarCategoria(Categoria categoria) throws Exception {
+        if (categoria == null) throw new Exception("Debe seleccionar una categoría");
+        boolean enUso = data.getRecursos().stream()
+                .anyMatch(r -> r.getCategoria() != null
+                        && categoria.getId().equals(r.getCategoria().getId()));
+        if (enUso)
+            throw new Exception("No se puede borrar: la categoría está siendo utilizada por al menos un recurso");
+        if (!data.getCategorias().remove(categoria))
+            throw new Exception("La categoría ya no existe");
+        store();
+    }
+
+    private String generarIdCategoria() {
+        int max = 0;
+        for (Categoria c : data.getCategorias()) {
+            String numero = c.getId() == null ? "" : c.getId().replaceAll("[^0-9]", "");
+            if (!numero.isEmpty()) {
+                try { max = Math.max(max, Integer.parseInt(numero)); }
+                catch (NumberFormatException ignored) {}
+            }
+        }
+        return String.format("CAT-%06d", max + 1);
+    }
 }
