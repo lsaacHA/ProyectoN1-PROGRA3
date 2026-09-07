@@ -2,10 +2,12 @@ package proyecto.presentation.funcionarios;
 
 import proyecto.logic.Funcionario;
 import proyecto.logic.Service;
+import proyecto.presentation.PdfReportes;
 
 import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Path;
 
 public class Controller implements ActionListener {
     private final Model model;
@@ -58,6 +60,16 @@ public class Controller implements ActionListener {
         model.setList(service.buscarFuncionarios("", ""));
     }
 
+    private void imprimir() {
+        try {
+            Path archivo = PdfReportes.funcionarios(model.getList(), Path.of("reportes", "funcionarios.pdf"));
+            PdfReportes.abrir(archivo);
+            view.mostrarMensaje("Reporte generado en: " + archivo);
+        } catch (Exception e) {
+            view.mostrarError("No se pudo generar el PDF: " + e.getMessage());
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent event) {
         Object source = event.getSource();
@@ -65,7 +77,7 @@ public class Controller implements ActionListener {
         else if (source == view.getGuardarFld()) guardar();
         else if (source == view.getBorrarFld()) borrar();
         else if (source == view.getLimpiarFld()) limpiar();
-        else if (source == view.getImprimirFld()) view.imprimir();
+        else if (source == view.getImprimirFld()) imprimir();
         else buscar();
     }
 }
