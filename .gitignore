@@ -16,6 +16,8 @@ out/
 # Datos locales de ejecución
 /data/datos.xml
 
+reportes/
+
 # macOS
 .DS_Store
 
