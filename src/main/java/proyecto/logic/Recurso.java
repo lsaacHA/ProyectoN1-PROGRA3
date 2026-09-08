@@ -15,10 +15,12 @@ public class Recurso {
     }
 
     public String getId() {
+
         return id;
     }
 
     public void setId(String id) {
+
         this.id = id;
     }
 
@@ -31,15 +33,12 @@ public class Recurso {
     }
 
     public String getDescripcion() {
+
         return descripcion;
     }
 
     public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
 
-    @Override
-    public String toString() {
-        return descripcion;
+        this.descripcion = descripcion;
     }
 }
