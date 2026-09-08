@@ -9,7 +9,6 @@ import java.beans.PropertyChangeListener;
 
 public class View extends JPanel {
 
-    // --- Sección Filtro ---
     private JComboBox<Categoria> comboFiltroCategoria;
     private JTextField txtFiltroDescripcion;
     private JButton btnBuscar;
@@ -18,8 +17,6 @@ public class View extends JPanel {
     public View() {
         setLayout(new BorderLayout());
         add(crearPanelFiltro(), BorderLayout.NORTH);
-        // más adelante: add(crearPanelRecurso(), BorderLayout.CENTER);
-        // más adelante: add(crearPanelListado(), BorderLayout.SOUTH);
     }
 
     private JPanel crearPanelFiltro() {
