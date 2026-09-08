@@ -37,4 +37,54 @@ public class View extends JPanel {
 
         return panel;
     }
+
+    private JTextField txtId;
+    private JComboBox<Categoria> comboCategoria;
+    private JTextField txtDescripcion;
+    private JButton btnGuardar;
+    private JButton btnBorrar;
+    private JButton btnLimpiar;
+
+    private JPanel crearPanelRecurso() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Recurso"));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        txtId = new JTextField(20);
+        comboCategoria = new JComboBox<>();
+        txtDescripcion = new JTextField(20);
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        panel.add(new JLabel("ID"), gbc);
+        gbc.gridx = 1;
+        panel.add(txtId, gbc);
+
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        panel.add(new JLabel("Categoria"), gbc);
+        gbc.gridx = 1;
+        panel.add(comboCategoria, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        panel.add(new JLabel("Descripcion"), gbc);
+        gbc.gridx = 1;
+        panel.add(txtDescripcion, gbc);
+
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        btnGuardar = new JButton("Guardar");
+        btnBorrar = new JButton("Borrar");
+        btnLimpiar = new JButton("Limpiar");
+        panelBotones.add(btnGuardar);
+        panelBotones.add(btnBorrar);
+        panelBotones.add(btnLimpiar);
+
+        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        panel.add(panelBotones, gbc);
+
+        return panel;
+    }
 }
