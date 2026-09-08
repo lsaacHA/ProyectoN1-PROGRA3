@@ -21,10 +21,14 @@ public class View extends JPanel {
     private JButton btnBorrar;
     private JButton btnLimpiar;
 
+    private JTable tablaRecursos;
+    private TableModel tableModel;
+
     public View() {
         setLayout(new BorderLayout());
         add(crearPanelFiltro(), BorderLayout.NORTH);
         add(crearPanelRecurso(), BorderLayout.CENTER);
+        add(crearPanelListado(), BorderLayout.SOUTH);
     }
 
     private JPanel crearPanelFiltro() {
@@ -86,5 +90,19 @@ public class View extends JPanel {
         panel.add(panelBotones, gbc);
 
         return panel;
+    }
+
+    private JScrollPane crearPanelListado() {
+        tableModel = new TableModel(
+                new int[]{TableModel.ID, TableModel.CATEGORIA, TableModel.DESCRIPCION},
+                new java.util.ArrayList<>()
+        );
+        tablaRecursos = new JTable(tableModel);
+
+        JScrollPane scroll = new JScrollPane(tablaRecursos);
+        scroll.setBorder(BorderFactory.createTitledBorder("Listado"));
+        scroll.setPreferredSize(new Dimension(400, 150));
+
+        return scroll;
     }
 }
