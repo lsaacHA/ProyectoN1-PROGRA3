@@ -14,9 +14,17 @@ public class View extends JPanel {
     private JButton btnBuscar;
     private JButton btnImprimir;
 
+    private JTextField txtId;
+    private JComboBox<Categoria> comboCategoria;
+    private JTextField txtDescripcion;
+    private JButton btnGuardar;
+    private JButton btnBorrar;
+    private JButton btnLimpiar;
+
     public View() {
         setLayout(new BorderLayout());
         add(crearPanelFiltro(), BorderLayout.NORTH);
+        add(crearPanelRecurso(), BorderLayout.CENTER);
     }
 
     private JPanel crearPanelFiltro() {
@@ -38,13 +46,6 @@ public class View extends JPanel {
         return panel;
     }
 
-    private JTextField txtId;
-    private JComboBox<Categoria> comboCategoria;
-    private JTextField txtDescripcion;
-    private JButton btnGuardar;
-    private JButton btnBorrar;
-    private JButton btnLimpiar;
-
     private JPanel crearPanelRecurso() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Recurso"));
@@ -61,7 +62,6 @@ public class View extends JPanel {
         panel.add(new JLabel("ID"), gbc);
         gbc.gridx = 1;
         panel.add(txtId, gbc);
-
 
         gbc.gridx = 0; gbc.gridy = 1;
         panel.add(new JLabel("Categoria"), gbc);
