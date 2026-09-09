@@ -1,20 +1,20 @@
-package proyecto.presentation.categorias;
+package proyecto.presentation.funcionarios;
 
-import proyecto.logic.Categoria;
+import proyecto.logic.Funcionario;
 import proyecto.presentation.AbstractModel;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Model extends AbstractModel {
-    private Categoria current;
-    private List<Categoria> list;
+    private Funcionario current;
+    private List<Funcionario> list;
 
     public static final String CURRENT = "current";
     public static final String LIST = "list";
 
     public Model() {
-        current = new Categoria();
+        current = new Funcionario();
         list = new ArrayList<>();
     }
 
@@ -25,20 +25,20 @@ public class Model extends AbstractModel {
         firePropertyChange(LIST);
     }
 
-    public Categoria getCurrent() {
+    public Funcionario getCurrent() {
         return current;
     }
 
-    public void setCurrent(Categoria current) {
+    public void setCurrent(Funcionario current) {
         this.current = current;
         firePropertyChange(CURRENT);
     }
 
-    public List<Categoria> getList() {
+    public List<Funcionario> getList() {
         return list;
     }
 
-    public void setList(List<Categoria> list) {
+    public void setList(List<Funcionario> list) {
         this.list = list;
         firePropertyChange(LIST);
     }

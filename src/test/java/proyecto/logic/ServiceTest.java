@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ServiceTest {
     @Test
     void creaUsuariosInicialesYPermiteLogin() throws Exception {
-        Service service = nuevoService("reservas-login-");
+        Service service = nuevoService();
         assertEquals(Rol.ADMINISTRADOR, service.login("111", "111").getRol());
         assertEquals(Rol.FUNCIONARIO, service.login("222", "222").getRol());
         assertThrows(Exception.class, () -> service.login("111", "incorrecta"));
@@ -30,16 +30,64 @@ class ServiceTest {
     }
 
     @Test
-    void reservaPrimerRecursoDisponibleYListaSoloLasPropias() throws Exception {
-        Service service = nuevoService("reservas-manual-");
-        Funcionario funcionario = service.getFuncionarios().get(0);
-        Categoria sala = new Categoria("CAT001", "Sala");
-        Recurso recurso = new Recurso("REC001", sala, "Sala 1");
-        service.getCategorias().add(sala);
-        service.getRecursos().add(recurso);
+    void creaBuscaModificaYBorraFuncionario() throws Exception {
+        Path archivo = Files.createTempDirectory("funcionarios-crud-").resolve("datos.xml");
+        Service service = new Service(archivo);
+        Funcionario creado = service.guardarFuncionario(null, "333", "María Pérez", "8888-9999");
+        assertEquals(creado, service.buscarFuncionarios("33", "maría").get(0));
 
-        Reserva reserva = service.reservar(funcionario, "Reunión",
-                LocalDate.now().plusDays(1), LocalTime.of(8, 0), LocalTime.of(9, 0), List.of(sala));
+        service.guardarFuncionario(creado, "333", "María Sol Pérez", "2222-3333");
+        assertEquals("María Sol Pérez", new Service(archivo).buscarFuncionarios("333", "").get(0).getNombre());
+
+        service.borrarFuncionario(creado);
+        assertEquals(0, service.buscarFuncionarios("333", "").size());
+    }
+
+    @Test
+    void rechazaIdRepetidoYDatosInvalidos() throws Exception {
+        Service service = nuevoService();
+        assertThrows(Exception.class,
+                () -> service.guardarFuncionario(null, "222", "Otro", "88889999"));
+        assertThrows(Exception.class,
+                () -> service.guardarFuncionario(null, "333", "", "teléfono"));
+    }
+
+    @Test
+    void creaBuscaModificaYPersisteRecursos() throws Exception {
+        Path archivo = Files.createTempDirectory("recursos-crud-").resolve("datos.xml");
+        Service service = new Service(archivo);
+        Categoria categoria = service.guardarCategoria(null, "Equipo portátil");
+        Recurso creado = service.guardarRecurso(null, "REC-001", categoria, "Laptop Windows");
+
+        assertEquals(creado, service.buscarRecursos(categoria, "wind").get(0));
+        service.guardarRecurso(creado, "REC-001", categoria, "Laptop Windows 11");
+
+        Service recargado = new Service(archivo);
+        assertEquals("Laptop Windows 11",
+                recargado.buscarRecursos(null, "windows 11").get(0).getDescripcion());
+    }
+
+    @Test
+    void rechazaRecursoRepetidoYPermiteBorrarlo() throws Exception {
+        Service service = nuevoService();
+        Categoria categoria = service.guardarCategoria(null, "Sala");
+        Recurso recurso = service.guardarRecurso(null, "REC-001", categoria, "Sala de juntas");
+
+        assertThrows(Exception.class,
+                () -> service.guardarRecurso(null, "REC-001", categoria, "Duplicado"));
+        service.borrarRecurso(recurso);
+        assertEquals(0, service.buscarRecursos(null, "").size());
+    }
+
+    @Test
+    void reservaPrimerRecursoDisponibleYListaSoloLasPropias() throws Exception {
+        Service service = nuevoService();
+        Funcionario funcionario = service.getFuncionarios().get(0);
+        Categoria sala = service.guardarCategoria(null, "Sala");
+        Recurso recurso = service.guardarRecurso(null, "REC001", sala, "Sala 1");
+
+        Reserva reserva = service.reservar(funcionario, "Reunión", LocalDate.now().plusDays(1),
+                LocalTime.of(8, 0), LocalTime.of(9, 0), List.of(sala));
 
         assertEquals("RES-000001", reserva.getId());
         assertEquals(List.of(recurso), reserva.getRecursos());
@@ -48,11 +96,10 @@ class ServiceTest {
 
     @Test
     void impideTraslapesYPermiteReutilizarRecursoCancelado() throws Exception {
-        Service service = nuevoService("reservas-disponibilidad-");
+        Service service = nuevoService();
         Funcionario funcionario = service.getFuncionarios().get(0);
-        Categoria sala = new Categoria("CAT001", "Sala de juntas");
-        service.getCategorias().add(sala);
-        service.getRecursos().add(new Recurso("REC001", sala, "Sala 1"));
+        Categoria sala = service.guardarCategoria(null, "Sala de juntas");
+        service.guardarRecurso(null, "REC001", sala, "Sala 1");
         LocalDate fecha = LocalDate.now().plusDays(2);
 
         Reserva primera = service.reservar(funcionario, "Primera", fecha,
@@ -69,14 +116,14 @@ class ServiceTest {
     }
 
     @Test
-    void validaLosDatosObligatorios() throws Exception {
-        Service service = nuevoService("reservas-validacion-");
+    void validaLosDatosObligatoriosDeReserva() throws Exception {
+        Service service = nuevoService();
         Funcionario funcionario = service.getFuncionarios().get(0);
         assertThrows(Exception.class, () -> service.reservar(funcionario, "",
                 LocalDate.now().plusDays(1), LocalTime.of(10, 0), LocalTime.of(9, 0), List.of()));
     }
 
-    private Service nuevoService(String prefijo) throws Exception {
-        return new Service(Files.createTempDirectory(prefijo).resolve("datos.xml"));
+    private Service nuevoService() throws Exception {
+        return new Service(Files.createTempDirectory("funcionarios-").resolve("datos.xml"));
     }
 }

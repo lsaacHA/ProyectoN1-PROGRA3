@@ -1,6 +1,6 @@
-package proyecto.presentation.categorias;
+package proyecto.presentation.funcionarios;
 
-import proyecto.logic.Categoria;
+import proyecto.logic.Funcionario;
 import proyecto.logic.Service;
 import proyecto.presentation.PdfReportes;
 
@@ -24,44 +24,45 @@ public class Controller implements ActionListener {
     }
 
     private void buscar() {
-        model.setList(service.buscarCategorias(view.getBuscarDescripcion()));
+        model.setList(service.buscarFuncionarios(view.getIdBuscar(), view.getNombreBuscar()));
     }
 
     private void guardar() {
         try {
-            Categoria guardada = service.guardarCategoria(view.getSeleccionado(), view.getDescripcion());
-            model.setCurrent(guardada);
+            Funcionario guardado = service.guardarFuncionario(
+                    view.getSeleccionado(), view.getId(), view.getNombre(), view.getTelefono());
+            model.setCurrent(guardado);
             view.limpiarFiltros();
-            model.setList(service.buscarCategorias(""));
+            model.setList(service.buscarFuncionarios("", ""));
             model.setCurrent(null);
-            view.mostrarMensaje("Categoría guardada correctamente");
+            view.mostrarMensaje("Funcionario guardado correctamente");
         } catch (Exception e) { view.mostrarError(e.getMessage()); }
     }
 
     private void borrar() {
-        Categoria seleccionada = view.getSeleccionado();
-        if (seleccionada == null) { view.mostrarError("Debe seleccionar una categoría"); return; }
+        Funcionario seleccionado = view.getSeleccionado();
+        if (seleccionado == null) { view.mostrarError("Debe seleccionar un funcionario"); return; }
         int respuesta = JOptionPane.showConfirmDialog(view.getPanel(),
-                "¿Desea borrar la categoría \"" + seleccionada.getDescripcion() + "\"?",
+                "¿Desea borrar al funcionario " + seleccionado.getId() + "?",
                 "Confirmar", JOptionPane.YES_NO_OPTION);
         if (respuesta != JOptionPane.YES_OPTION) return;
         try {
-            service.borrarCategoria(seleccionada);
+            service.borrarFuncionario(seleccionado);
             model.setCurrent(null);
-            model.setList(service.buscarCategorias(view.getBuscarDescripcion()));
-            view.mostrarMensaje("Categoría borrada correctamente");
+            model.setList(service.buscarFuncionarios(view.getIdBuscar(), view.getNombreBuscar()));
+            view.mostrarMensaje("Funcionario borrado correctamente");
         } catch (Exception e) { view.mostrarError(e.getMessage()); }
     }
 
     private void limpiar() {
         view.limpiarFiltros();
         model.setCurrent(null);
-        model.setList(service.buscarCategorias(""));
+        model.setList(service.buscarFuncionarios("", ""));
     }
 
     private void imprimir() {
         try {
-            Path archivo = PdfReportes.categorias(model.getList(), Path.of("reportes", "categorias.pdf"));
+            Path archivo = PdfReportes.funcionarios(model.getList(), Path.of("reportes", "funcionarios.pdf"));
             PdfReportes.abrir(archivo);
             view.mostrarMensaje("Reporte generado en: " + archivo);
         } catch (Exception e) {
@@ -72,11 +73,11 @@ public class Controller implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent event) {
         Object source = event.getSource();
-        if (source == view.getBuscarButton()) buscar();
-        else if (source == view.getImprimirButton()) imprimir();
-        else if (source == view.getGuardarButton()) guardar();
-        else if (source == view.getBorrarButton()) borrar();
-        else if (source == view.getLimpiarButton()) limpiar();
+        if (source == view.getBuscarFld()) buscar();
+        else if (source == view.getGuardarFld()) guardar();
+        else if (source == view.getBorrarFld()) borrar();
+        else if (source == view.getLimpiarFld()) limpiar();
+        else if (source == view.getImprimirFld()) imprimir();
         else buscar();
     }
 }
