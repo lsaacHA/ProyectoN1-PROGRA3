@@ -4,9 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ServiceTest {
     @Test
@@ -73,6 +77,60 @@ class ServiceTest {
                 () -> service.guardarRecurso(null, "REC-001", categoria, "Duplicado"));
         service.borrarRecurso(recurso);
         assertEquals(0, service.buscarRecursos(null, "").size());
+    }
+
+    @Test
+    void reservaPrimerRecursoDisponibleYListaSoloLasPropias() throws Exception {
+        Service service = nuevoService();
+        Funcionario funcionario = service.getFuncionarios().get(0);
+        Categoria sala = service.guardarCategoria(null, "Sala");
+        Recurso recurso = service.guardarRecurso(null, "REC001", sala, "Sala 1");
+
+        Reserva reserva = service.reservar(funcionario, "Reunión", LocalDate.now().plusDays(1),
+                LocalTime.of(8, 0), LocalTime.of(9, 0), List.of(sala));
+
+        assertEquals("RES-000001", reserva.getId());
+        assertEquals(List.of(recurso), reserva.getRecursos());
+        assertEquals(List.of(reserva), service.reservasDe(funcionario));
+    }
+
+    @Test
+    void impideTraslapesYPermiteReutilizarRecursoCancelado() throws Exception {
+        Service service = nuevoService();
+        Funcionario funcionario = service.getFuncionarios().get(0);
+        Categoria sala = service.guardarCategoria(null, "Sala de juntas");
+        service.guardarRecurso(null, "REC001", sala, "Sala 1");
+        LocalDate fecha = LocalDate.now().plusDays(2);
+
+        Reserva primera = service.reservar(funcionario, "Primera", fecha,
+                LocalTime.of(8, 0), LocalTime.of(10, 0), List.of(sala));
+        Exception error = assertThrows(Exception.class, () -> service.reservar(funcionario,
+                "Traslapada", fecha, LocalTime.of(9, 0), LocalTime.of(11, 0), List.of(sala)));
+        assertTrue(error.getMessage().contains("Sala de juntas"));
+
+        service.cancelarReserva(primera, funcionario);
+        Reserva segunda = service.reservar(funcionario, "Disponible", fecha,
+                LocalTime.of(9, 0), LocalTime.of(11, 0), List.of(sala));
+        assertEquals(EstadoReserva.CANCELADA, primera.getEstado());
+        assertEquals(EstadoReserva.ACTIVA, segunda.getEstado());
+    }
+
+    @Test
+    void validaLosDatosObligatoriosDeReserva() throws Exception {
+        Service service = nuevoService();
+        Funcionario funcionario = service.getFuncionarios().get(0);
+        assertThrows(Exception.class, () -> service.reservar(funcionario, "",
+                LocalDate.now().plusDays(1), LocalTime.of(10, 0), LocalTime.of(9, 0), List.of()));
+    }
+
+    @Test
+    void rechazaCategoriasQueNoPertenecenAlXml() throws Exception {
+        Service service = nuevoService();
+        Funcionario funcionario = service.getFuncionarios().get(0);
+        Categoria ajena = new Categoria("CAT-AJENA", "Categoría ajena");
+        Exception error = assertThrows(Exception.class, () -> service.reservar(funcionario, "Reunión",
+                LocalDate.now().plusDays(1), LocalTime.of(8, 0), LocalTime.of(9, 0), List.of(ajena)));
+        assertTrue(error.getMessage().contains("no registrada"));
     }
 
     private Service nuevoService() throws Exception {
