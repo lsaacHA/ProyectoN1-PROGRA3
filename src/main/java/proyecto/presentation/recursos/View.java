@@ -1,108 +1,127 @@
 package proyecto.presentation.recursos;
 
 import proyecto.logic.Categoria;
-import proyecto.presentation.AbstractModel;
+import proyecto.logic.Recurso;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class View extends JPanel {
-
-    private JComboBox<Categoria> comboFiltroCategoria;
-    private JTextField txtFiltroDescripcion;
-    private JButton btnBuscar;
-    private JButton btnImprimir;
-
-    private JTextField txtId;
-    private JComboBox<Categoria> comboCategoria;
-    private JTextField txtDescripcion;
-    private JButton btnGuardar;
-    private JButton btnBorrar;
-    private JButton btnLimpiar;
-
-    private JTable tablaRecursos;
-    private TableModel tableModel;
+public class View implements PropertyChangeListener {
+    private JPanel panel;
+    private JPanel filtroPanel;
+    private JPanel recursoPanel;
+    private JPanel listadoPanel;
+    private JComboBox<Categoria> categoriaFiltroFld;
+    private JTextField descripcionFiltroFld;
+    private JButton buscarFld;
+    private JButton imprimirFld;
+    private JTextField idFld;
+    private JComboBox<Categoria> categoriaFld;
+    private JTextField descripcionFld;
+    private JButton guardarFld;
+    private JButton borrarFld;
+    private JButton limpiarFld;
+    private JTable recursosFld;
 
     public View() {
-        setLayout(new BorderLayout());
-        add(crearPanelFiltro(), BorderLayout.NORTH);
-        add(crearPanelRecurso(), BorderLayout.CENTER);
-        add(crearPanelListado(), BorderLayout.SOUTH);
+        borrarFld.setEnabled(false);
+        recursosFld.setAutoCreateRowSorter(true);
+        recursosFld.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        recursosFld.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) seleccionarFila();
+        });
     }
 
-    private JPanel crearPanelFiltro() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel.setBorder(BorderFactory.createTitledBorder("Filtro"));
-
-        comboFiltroCategoria = new JComboBox<>();
-        txtFiltroDescripcion = new JTextField(15);
-        btnBuscar = new JButton("Buscar");
-        btnImprimir = new JButton("Imprimir");
-
-        panel.add(new JLabel("Categoria"));
-        panel.add(comboFiltroCategoria);
-        panel.add(new JLabel("Descripcion"));
-        panel.add(txtFiltroDescripcion);
-        panel.add(btnBuscar);
-        panel.add(btnImprimir);
-
-        return panel;
+    public void setController(ActionListener controller) {
+        buscarFld.addActionListener(controller);
+        imprimirFld.addActionListener(controller);
+        guardarFld.addActionListener(controller);
+        borrarFld.addActionListener(controller);
+        limpiarFld.addActionListener(controller);
+        descripcionFiltroFld.addActionListener(controller);
     }
 
-    private JPanel crearPanelRecurso() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Recurso"));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        txtId = new JTextField(20);
-        comboCategoria = new JComboBox<>();
-        txtDescripcion = new JTextField(20);
-
-        gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(new JLabel("ID"), gbc);
-        gbc.gridx = 1;
-        panel.add(txtId, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 1;
-        panel.add(new JLabel("Categoria"), gbc);
-        gbc.gridx = 1;
-        panel.add(comboCategoria, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2;
-        panel.add(new JLabel("Descripcion"), gbc);
-        gbc.gridx = 1;
-        panel.add(txtDescripcion, gbc);
-
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        btnGuardar = new JButton("Guardar");
-        btnBorrar = new JButton("Borrar");
-        btnLimpiar = new JButton("Limpiar");
-        panelBotones.add(btnGuardar);
-        panelBotones.add(btnBorrar);
-        panelBotones.add(btnLimpiar);
-
-        gbc.gridx = 0; gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        panel.add(panelBotones, gbc);
-
-        return panel;
+    private void seleccionarFila() {
+        Recurso seleccionado = getSeleccionado();
+        if (seleccionado == null) return;
+        idFld.setText(seleccionado.getId());
+        idFld.setEditable(false);
+        categoriaFld.setSelectedItem(seleccionado.getCategoria());
+        descripcionFld.setText(seleccionado.getDescripcion());
+        borrarFld.setEnabled(true);
     }
 
-    private JScrollPane crearPanelListado() {
-        tableModel = new TableModel(
-                new int[]{TableModel.ID, TableModel.CATEGORIA, TableModel.DESCRIPCION},
-                new java.util.ArrayList<>()
-        );
-        tablaRecursos = new JTable(tableModel);
+    public Recurso getSeleccionado() {
+        int fila = recursosFld.getSelectedRow();
+        if (fila < 0 || !(recursosFld.getModel() instanceof TableModel tableModel)) return null;
+        return tableModel.getRowAt(recursosFld.convertRowIndexToModel(fila));
+    }
 
-        JScrollPane scroll = new JScrollPane(tablaRecursos);
-        scroll.setBorder(BorderFactory.createTitledBorder("Listado"));
-        scroll.setPreferredSize(new Dimension(400, 150));
+    public void limpiarEdicion() {
+        recursosFld.clearSelection();
+        idFld.setText("");
+        idFld.setEditable(true);
+        if (categoriaFld.getItemCount() > 0) categoriaFld.setSelectedIndex(0);
+        descripcionFld.setText("");
+        borrarFld.setEnabled(false);
+        idFld.requestFocusInWindow();
+    }
 
-        return scroll;
+    public void limpiarFiltros() {
+        categoriaFiltroFld.setSelectedItem(null);
+        descripcionFiltroFld.setText("");
+    }
+
+    private void actualizarCategorias(Model model) {
+        Categoria filtroAnterior = (Categoria) categoriaFiltroFld.getSelectedItem();
+        Categoria categoriaAnterior = (Categoria) categoriaFld.getSelectedItem();
+        categoriaFiltroFld.removeAllItems();
+        categoriaFiltroFld.addItem(null);
+        categoriaFld.removeAllItems();
+        for (Categoria categoria : model.getCategories()) {
+            categoriaFiltroFld.addItem(categoria);
+            categoriaFld.addItem(categoria);
+        }
+        if (filtroAnterior != null) categoriaFiltroFld.setSelectedItem(filtroAnterior);
+        if (categoriaAnterior != null) categoriaFld.setSelectedItem(categoriaAnterior);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        Model model = (Model) event.getSource();
+        if (Model.CATEGORIES.equals(event.getPropertyName())) actualizarCategorias(model);
+        if (Model.LIST.equals(event.getPropertyName())) {
+            int[] columnas = {TableModel.ID, TableModel.CATEGORIA, TableModel.DESCRIPCION};
+            recursosFld.setModel(new TableModel(columnas, model.getList()));
+        }
+        if (Model.CURRENT.equals(event.getPropertyName()) && model.getCurrent() == null)
+            limpiarEdicion();
+    }
+
+    public JPanel getPanel() { return panel; }
+    public Categoria getCategoriaFiltro() { return (Categoria) categoriaFiltroFld.getSelectedItem(); }
+    public String getDescripcionFiltro() { return descripcionFiltroFld.getText(); }
+    public String getId() { return idFld.getText(); }
+    public Categoria getCategoria() { return (Categoria) categoriaFld.getSelectedItem(); }
+    public String getDescripcion() { return descripcionFld.getText(); }
+    public JButton getBuscarFld() { return buscarFld; }
+    public JButton getImprimirFld() { return imprimirFld; }
+    public JButton getGuardarFld() { return guardarFld; }
+    public JButton getBorrarFld() { return borrarFld; }
+    public JButton getLimpiarFld() { return limpiarFld; }
+
+    public void mostrarMensaje(String mensaje) {
+        JOptionPane.showMessageDialog(panel, mensaje, "Recursos", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(panel, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

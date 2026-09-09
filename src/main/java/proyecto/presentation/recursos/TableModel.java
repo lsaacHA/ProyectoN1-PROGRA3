@@ -6,7 +6,6 @@ import proyecto.presentation.AbstractTableModel;
 import java.util.List;
 
 public class TableModel extends AbstractTableModel<Recurso> {
-
     public static final int ID = 0;
     public static final int CATEGORIA = 1;
     public static final int DESCRIPCION = 2;
@@ -17,20 +16,16 @@ public class TableModel extends AbstractTableModel<Recurso> {
 
     @Override
     protected void initColNames() {
-        colNames = new String[]{"Id", "Categoria", "Descripcion"};
+        colNames = new String[]{"ID", "Categoría", "Descripción"};
     }
 
     @Override
-    protected Object getPropetyAt(Recurso element, int col) {
-        switch (cols[col]) {
-            case ID:
-                return element.getId();
-            case CATEGORIA:
-                return element.getCategoria();
-            case DESCRIPCION:
-                return element.getDescripcion();
-            default:
-                return null;
-        }
+    protected Object getPropetyAt(Recurso recurso, int col) {
+        return switch (cols[col]) {
+            case ID -> recurso.getId();
+            case CATEGORIA -> recurso.getCategoria() == null ? "" : recurso.getCategoria().getDescripcion();
+            case DESCRIPCION -> recurso.getDescripcion();
+            default -> "";
+        };
     }
 }

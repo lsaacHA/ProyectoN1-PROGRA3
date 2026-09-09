@@ -43,11 +43,11 @@ public class Service {
     }
 
     public List<Funcionario> buscarFuncionarios(String id, String nombre) {
-        String filtroId = id == null ? "" : id.trim().toLowerCase();
-        String filtroNombre = nombre == null ? "" : nombre.trim().toLowerCase();
+        String filtroId = normalizar(id);
+        String filtroNombre = normalizar(nombre);
         return data.getFuncionarios().stream()
-                .filter(f -> filtroId.isEmpty() || f.getId().toLowerCase().contains(filtroId))
-                .filter(f -> filtroNombre.isEmpty() || f.getNombre().toLowerCase().contains(filtroNombre))
+                .filter(f -> filtroId.isEmpty() || normalizar(f.getId()).contains(filtroId))
+                .filter(f -> filtroNombre.isEmpty() || normalizar(f.getNombre()).contains(filtroNombre))
                 .sorted(Comparator.comparing(Funcionario::getId))
                 .toList();
     }
@@ -58,7 +58,6 @@ public class Service {
         String idLimpio = id.trim();
         String nombreLimpio = nombre.trim();
         String telefonoLimpio = telefono.trim();
-
         Optional<Usuario> existente = findUser(idLimpio);
         if (original == null) {
             if (existente.isPresent()) throw new Exception("Ya existe un usuario con el ID " + idLimpio);
@@ -67,7 +66,6 @@ public class Service {
             store();
             return nuevo;
         }
-
         if (!original.getId().equals(idLimpio))
             throw new Exception("El ID de un funcionario existente no se puede modificar");
         original.setNombre(nombreLimpio);
@@ -98,18 +96,10 @@ public class Service {
             throw new Exception("El teléfono contiene caracteres inválidos");
     }
 
-    public void store() throws Exception { data.store(); }
-    public List<Usuario> getUsuarios() { return data.getUsuarios(); }
-    public List<Funcionario> getFuncionarios() { return data.getFuncionarios(); }
-    public List<Categoria> getCategorias() { return data.getCategorias(); }
-    public List<Recurso> getRecursos() { return data.getRecursos(); }
-    public List<Reserva> getReservas() { return data.getReservas(); }
-
-
     public List<Categoria> buscarCategorias(String descripcion) {
-        String filtro = descripcion == null ? "" : descripcion.trim().toLowerCase();
+        String filtro = normalizar(descripcion);
         return data.getCategorias().stream()
-                .filter(c -> filtro.isEmpty() || c.getDescripcion().toLowerCase().contains(filtro))
+                .filter(c -> filtro.isEmpty() || normalizar(c.getDescripcion()).contains(filtro))
                 .sorted(Comparator.comparing(Categoria::getId))
                 .toList();
     }
@@ -118,14 +108,12 @@ public class Service {
         if (descripcion == null || descripcion.isBlank())
             throw new Exception("La descripción es obligatoria");
         String descripcionLimpia = descripcion.trim();
-
         if (original == null) {
             Categoria nueva = new Categoria(generarIdCategoria(), descripcionLimpia);
             data.getCategorias().add(nueva);
             store();
             return nueva;
         }
-
         original.setDescripcion(descripcionLimpia);
         store();
         return original;
@@ -134,8 +122,7 @@ public class Service {
     public void borrarCategoria(Categoria categoria) throws Exception {
         if (categoria == null) throw new Exception("Debe seleccionar una categoría");
         boolean enUso = data.getRecursos().stream()
-                .anyMatch(r -> r.getCategoria() != null
-                        && categoria.getId().equals(r.getCategoria().getId()));
+                .anyMatch(r -> mismaCategoria(categoria, r.getCategoria()));
         if (enUso)
             throw new Exception("No se puede borrar: la categoría está siendo utilizada por al menos un recurso");
         if (!data.getCategorias().remove(categoria))
@@ -149,9 +136,84 @@ public class Service {
             String numero = c.getId() == null ? "" : c.getId().replaceAll("[^0-9]", "");
             if (!numero.isEmpty()) {
                 try { max = Math.max(max, Integer.parseInt(numero)); }
-                catch (NumberFormatException ignored) {}
+                catch (NumberFormatException ignored) { }
             }
         }
         return String.format("CAT-%06d", max + 1);
     }
+
+    public List<Recurso> buscarRecursos(Categoria categoria, String descripcion) {
+        String filtro = normalizar(descripcion);
+        return data.getRecursos().stream()
+                .filter(r -> categoria == null || mismaCategoria(categoria, r.getCategoria()))
+                .filter(r -> filtro.isEmpty() || normalizar(r.getDescripcion()).contains(filtro))
+                .sorted(Comparator.comparing(Recurso::getId))
+                .toList();
+    }
+
+    public Recurso guardarRecurso(Recurso original, String id, Categoria categoria,
+                                   String descripcion) throws Exception {
+        validarRecurso(id, categoria, descripcion);
+        String idLimpio = id.trim();
+        String descripcionLimpia = descripcion.trim();
+        Optional<Recurso> existente = data.getRecursos().stream()
+                .filter(r -> idLimpio.equalsIgnoreCase(r.getId()))
+                .findFirst();
+
+        if (original == null) {
+            if (existente.isPresent()) throw new Exception("Ya existe un recurso con el ID " + idLimpio);
+            Recurso nuevo = new Recurso(idLimpio, categoria, descripcionLimpia);
+            data.getRecursos().add(nuevo);
+            store();
+            return nuevo;
+        }
+
+        if (!original.getId().equals(idLimpio))
+            throw new Exception("El ID de un recurso existente no se puede modificar");
+        original.setCategoria(categoria);
+        original.setDescripcion(descripcionLimpia);
+        store();
+        return original;
+    }
+
+    public void borrarRecurso(Recurso recurso) throws Exception {
+        if (recurso == null) throw new Exception("Debe seleccionar un recurso");
+        boolean enUso = data.getReservas().stream()
+                .filter(r -> r.getRecursos() != null)
+                .flatMap(r -> r.getRecursos().stream())
+                .anyMatch(asignado -> asignado != null && recurso.getId().equals(asignado.getId()));
+        if (enUso)
+            throw new Exception("No se puede borrar: el recurso está asignado a una reserva");
+        if (!data.getRecursos().remove(recurso))
+            throw new Exception("El recurso ya no existe");
+        store();
+    }
+
+    private void validarRecurso(String id, Categoria categoria, String descripcion) throws Exception {
+        if (id == null || id.isBlank()) throw new Exception("El ID es obligatorio");
+        if (categoria == null) throw new Exception("Debe seleccionar una categoría");
+        if (descripcion == null || descripcion.isBlank())
+            throw new Exception("La descripción es obligatoria");
+        if (!id.trim().matches("[A-Za-z0-9_-]+"))
+            throw new Exception("El ID solo puede contener letras, números, guion y guion bajo");
+        boolean categoriaExiste = data.getCategorias().stream()
+                .anyMatch(c -> mismaCategoria(c, categoria));
+        if (!categoriaExiste) throw new Exception("La categoría seleccionada ya no existe");
+    }
+
+    private boolean mismaCategoria(Categoria primera, Categoria segunda) {
+        return primera != null && segunda != null && primera.getId() != null
+                && primera.getId().equals(segunda.getId());
+    }
+
+    private String normalizar(String texto) {
+        return texto == null ? "" : texto.trim().toLowerCase();
+    }
+
+    public void store() throws Exception { data.store(); }
+    public List<Usuario> getUsuarios() { return data.getUsuarios(); }
+    public List<Funcionario> getFuncionarios() { return data.getFuncionarios(); }
+    public List<Categoria> getCategorias() { return data.getCategorias(); }
+    public List<Recurso> getRecursos() { return data.getRecursos(); }
+    public List<Reserva> getReservas() { return data.getReservas(); }
 }

@@ -2,55 +2,50 @@ package proyecto.presentation.recursos;
 
 import proyecto.logic.Categoria;
 import proyecto.logic.Recurso;
-import proyecto.logic.Service;
 import proyecto.presentation.AbstractModel;
 
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Model extends AbstractModel {
+    public static final String CURRENT = "current";
+    public static final String LIST = "list";
+    public static final String CATEGORIES = "categories";
 
-    public static final String RECURSOS="recursos";
-    public static final String SELECCIONADO ="seleccionado";
-
-    private List<Recurso> recursos;
-    private Recurso seleccionado;
+    private Recurso current;
+    private List<Recurso> list;
+    private List<Categoria> categories;
 
     public Model() {
-        recursos=Service.listarRecursos();
+        current = null;
+        list = new ArrayList<>();
+        categories = new ArrayList<>();
     }
 
-    public List<Recurso> getRecursos() {
-        return recursos;
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        super.addPropertyChangeListener(listener);
+        firePropertyChange(CURRENT);
+        firePropertyChange(LIST);
+        firePropertyChange(CATEGORIES);
     }
 
-    public Recurso getSeleccionado() {
-        return seleccionado;
+    public Recurso getCurrent() { return current; }
+    public void setCurrent(Recurso current) {
+        this.current = current;
+        firePropertyChange(CURRENT);
     }
 
-    public void setSeleccionado(Recurso seleccionado) {
-        this.seleccionado = seleccionado;
-        firePropertyChange(SELECCIONADO);
+    public List<Recurso> getList() { return list; }
+    public void setList(List<Recurso> list) {
+        this.list = list == null ? new ArrayList<>() : list;
+        firePropertyChange(LIST);
     }
 
-    public void buscar(Categoria categoria, String descripcion) {
-        recursos = Service.buscarRecursos(categoria, descripcion);
-        firePropertyChange(RECURSOS);
-    }
-
-    public void guardar(Recurso recurso) {
-        Service.guardarRecurso(recurso);
-        recursos = Service.listarRecursos();
-        firePropertyChange(RECURSOS);
-    }
-
-    public void borrar(String id) {
-        Service.borrarRecurso(id);
-        recursos = Service.listarRecursos();
-        setSeleccionado(null);
-        firePropertyChange(RECURSOS);
-    }
-
-    public void limpiar() {
-        setSeleccionado(null);
+    public List<Categoria> getCategories() { return categories; }
+    public void setCategories(List<Categoria> categories) {
+        this.categories = categories == null ? new ArrayList<>() : categories;
+        firePropertyChange(CATEGORIES);
     }
 }
