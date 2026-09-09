@@ -48,6 +48,33 @@ class ServiceTest {
                 () -> service.guardarFuncionario(null, "333", "", "teléfono"));
     }
 
+    @Test
+    void creaBuscaModificaYPersisteRecursos() throws Exception {
+        Path archivo = Files.createTempDirectory("recursos-crud-").resolve("datos.xml");
+        Service service = new Service(archivo);
+        Categoria categoria = service.guardarCategoria(null, "Equipo portátil");
+        Recurso creado = service.guardarRecurso(null, "REC-001", categoria, "Laptop Windows");
+
+        assertEquals(creado, service.buscarRecursos(categoria, "wind").get(0));
+        service.guardarRecurso(creado, "REC-001", categoria, "Laptop Windows 11");
+
+        Service recargado = new Service(archivo);
+        assertEquals("Laptop Windows 11",
+                recargado.buscarRecursos(null, "windows 11").get(0).getDescripcion());
+    }
+
+    @Test
+    void rechazaRecursoRepetidoYPermiteBorrarlo() throws Exception {
+        Service service = nuevoService();
+        Categoria categoria = service.guardarCategoria(null, "Sala");
+        Recurso recurso = service.guardarRecurso(null, "REC-001", categoria, "Sala de juntas");
+
+        assertThrows(Exception.class,
+                () -> service.guardarRecurso(null, "REC-001", categoria, "Duplicado"));
+        service.borrarRecurso(recurso);
+        assertEquals(0, service.buscarRecursos(null, "").size());
+    }
+
     private Service nuevoService() throws Exception {
         return new Service(Files.createTempDirectory("funcionarios-").resolve("datos.xml"));
     }

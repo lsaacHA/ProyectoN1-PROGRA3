@@ -13,6 +13,7 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import proyecto.logic.Categoria;
 import proyecto.logic.Funcionario;
+import proyecto.logic.Recurso;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -109,6 +110,45 @@ public final class PdfReportes {
             }
             document.add(tabla);
             document.add(new Paragraph("Total: " + categorias.size())
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+        }
+        return absoluto;
+    }
+
+    public static Path recursos(List<Recurso> recursos, Path destino) throws Exception {
+        Path absoluto = destino.toAbsolutePath();
+        if (absoluto.getParent() != null) Files.createDirectories(absoluto.getParent());
+
+        PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+        PdfFont negrita = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+
+        try (PdfWriter writer = new PdfWriter(absoluto.toString());
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+            document.setMargins(30, 30, 30, 30);
+            document.add(new Paragraph("Sistema de Reservas")
+                    .setFont(negrita).setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Listado de Recursos")
+                    .setFont(negrita).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Generado: " + LocalDateTime.now().format(FECHA))
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+
+            Table tabla = new Table(UnitValue.createPercentArray(new float[]{1, 2, 3}))
+                    .useAllAvailableWidth();
+            tabla.addHeaderCell(celda("ID", negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Categoría", negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Descripción", negrita, TextAlignment.CENTER));
+
+            for (Recurso recurso : recursos) {
+                String categoria = recurso.getCategoria() == null
+                        ? ""
+                        : recurso.getCategoria().getDescripcion();
+                tabla.addCell(celda(recurso.getId(), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(categoria, normal, TextAlignment.LEFT));
+                tabla.addCell(celda(recurso.getDescripcion(), normal, TextAlignment.LEFT));
+            }
+            document.add(tabla);
+            document.add(new Paragraph("Total: " + recursos.size())
                     .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
         }
         return absoluto;
