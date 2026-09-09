@@ -68,4 +68,22 @@ class PdfReportesTest {
             assertEquals(1, pdf.getNumberOfPages());
         }
     }
+
+    @Test
+    void generaProgramacionSemanalDeActividadesValida() throws Exception {
+        Path destino = Path.of("target", "test-output", "actividades.pdf");
+        Funcionario funcionario = new Funcionario("222", "María Pérez", "222222");
+        Reserva reserva = new Reserva(
+                "RES-000001", funcionario, "Charla técnica",
+                LocalDate.of(2026, 9, 9), LocalTime.of(8, 0), LocalTime.of(10, 0),
+                List.of(), EstadoReserva.ACTIVA);
+
+        PdfReportes.actividades(List.of(reserva), LocalDate.of(2026, 9, 9), destino);
+
+        assertTrue(Files.exists(destino));
+        assertTrue(Files.size(destino) > 500);
+        try (PdfDocument pdf = new PdfDocument(new PdfReader(destino.toString()))) {
+            assertEquals(1, pdf.getNumberOfPages());
+        }
+    }
 }

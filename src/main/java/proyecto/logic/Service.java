@@ -265,6 +265,22 @@ public class Service {
                 .toList();
     }
 
+    /** Reservas activas comprendidas en la semana (lunes a domingo) de la fecha indicada. */
+    public List<Reserva> actividadesSemana(LocalDate fechaReferencia) throws Exception {
+        if (fechaReferencia == null) throw new Exception("Debe indicar una fecha de referencia");
+        LocalDate lunes = fechaReferencia.with(java.time.temporal.TemporalAdjusters.previousOrSame(
+                java.time.DayOfWeek.MONDAY));
+        LocalDate domingo = lunes.plusDays(6);
+        return data.getReservas().stream()
+                .filter(r -> r.getEstado() == EstadoReserva.ACTIVA)
+                .filter(r -> r.getFecha() != null
+                        && !r.getFecha().isBefore(lunes)
+                        && !r.getFecha().isAfter(domingo))
+                .sorted(Comparator.comparing(Reserva::getFecha)
+                        .thenComparing(Reserva::getHoraInicio))
+                .toList();
+    }
+
     public void cancelarReserva(Reserva reserva, Funcionario funcionario) throws Exception {
         if (reserva == null) throw new Exception("Debe seleccionar una reserva");
         if (funcionario == null || reserva.getFuncionario() == null

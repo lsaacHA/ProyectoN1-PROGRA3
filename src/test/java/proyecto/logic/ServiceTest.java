@@ -133,6 +133,24 @@ class ServiceTest {
         assertTrue(error.getMessage().contains("no registrada"));
     }
 
+    @Test
+    void listaSolamenteActividadesActivasDeLaSemana() throws Exception {
+        Service service = nuevoService();
+        Funcionario funcionario = service.getFuncionarios().get(0);
+        Categoria categoria = service.guardarCategoria(null, "Sala");
+        service.guardarRecurso(null, "REC-SEMANA", categoria, "Sala semanal");
+        LocalDate miercoles = LocalDate.now().plusWeeks(2).with(java.time.DayOfWeek.WEDNESDAY);
+
+        Reserva activa = service.reservar(funcionario, "Charla técnica", miercoles,
+                LocalTime.of(8, 0), LocalTime.of(10, 0), List.of(categoria));
+        Reserva cancelada = service.reservar(funcionario, "Reunión cancelada", miercoles.plusDays(1),
+                LocalTime.of(11, 0), LocalTime.of(12, 0), List.of(categoria));
+        service.cancelarReserva(cancelada, funcionario);
+
+        assertEquals(List.of(activa), service.actividadesSemana(miercoles));
+        assertThrows(Exception.class, () -> service.actividadesSemana(null));
+    }
+
     private Service nuevoService() throws Exception {
         return new Service(Files.createTempDirectory("funcionarios-").resolve("datos.xml"));
     }
