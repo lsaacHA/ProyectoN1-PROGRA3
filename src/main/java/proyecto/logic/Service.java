@@ -332,4 +332,28 @@ public class Service {
     public List<Categoria> getCategorias() { return data.getCategorias(); }
     public List<Recurso> getRecursos() { return data.getRecursos(); }
     public List<Reserva> getReservas() { return data.getReservas(); }
+
+    public List<List<String>> calendarizarRecursos(LocalDate fecha, List<Recurso> recursos,
+                                                   List<LocalTime> horas) {
+        List<List<String>> matriz = new ArrayList<>();
+        for (LocalTime hora : horas) {
+            List<String> fila = new ArrayList<>();
+            for (Recurso recurso : recursos) fila.add(actividadEnHora(recurso, fecha, hora));
+            matriz.add(fila);
+        }
+        return matriz;
+    }
+
+    private String actividadEnHora(Recurso recurso, LocalDate fecha, LocalTime hora) {
+        return data.getReservas().stream()
+                .filter(r -> r.getEstado() == EstadoReserva.ACTIVA)
+                .filter(r -> fecha.equals(r.getFecha()))
+                .filter(r -> r.getHoraInicio() != null && r.getHoraFin() != null
+                        && !hora.isBefore(r.getHoraInicio()) && hora.isBefore(r.getHoraFin()))
+                .filter(r -> r.getRecursos() != null && r.getRecursos().stream()
+                        .anyMatch(asignado -> asignado != null && recurso.getId().equals(asignado.getId())))
+                .findFirst()
+                .map(r -> r.getActividad() + (r.getFuncionario() != null ? " - " + r.getFuncionario().getNombre() : ""))
+                .orElse("");
+    }
 }

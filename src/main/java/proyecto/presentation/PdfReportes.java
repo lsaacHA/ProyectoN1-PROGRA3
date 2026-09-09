@@ -16,6 +16,8 @@ import proyecto.logic.Funcionario;
 import proyecto.logic.Recurso;
 import proyecto.logic.Reserva;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.awt.Desktop;
 import java.io.File;
 import java.nio.file.Files;
@@ -204,6 +206,48 @@ public final class PdfReportes {
             document.add(tabla);
             document.add(new Paragraph("Total: " + reservas.size())
                     .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+        }
+        return absoluto;
+    }
+    public static Path calendarizacion(LocalDate fecha, Categoria categoria, List<Recurso> recursos,
+                                       List<LocalTime> horas, List<List<String>> matriz,
+                                       Path destino) throws Exception {
+        Path absoluto = destino.toAbsolutePath();
+        if (absoluto.getParent() != null) Files.createDirectories(absoluto.getParent());
+
+        PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+        PdfFont negrita = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+
+        try (PdfWriter writer = new PdfWriter(absoluto.toString());
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+            document.setMargins(30, 30, 30, 30);
+            document.add(new Paragraph("Sistema de Reservas")
+                    .setFont(negrita).setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Calendarización de Recursos")
+                    .setFont(negrita).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Fecha: " + (fecha == null ? "" : fecha.format(SOLO_FECHA))
+                    + "   Categoría: " + (categoria == null ? "" : categoria.getDescripcion()))
+                    .setFont(normal).setFontSize(10).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Generado: " + LocalDateTime.now().format(FECHA))
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+
+            float[] anchos = new float[1 + recursos.size()];
+            anchos[0] = 1f;
+            for (int i = 1; i < anchos.length; i++) anchos[i] = 2f;
+
+            Table tabla = new Table(UnitValue.createPercentArray(anchos)).useAllAvailableWidth();
+            tabla.addHeaderCell(celda("Hora", negrita, TextAlignment.CENTER));
+            for (Recurso recurso : recursos)
+                tabla.addHeaderCell(celda(recurso.getDescripcion(), negrita, TextAlignment.CENTER));
+
+            for (int fila = 0; fila < horas.size(); fila++) {
+                tabla.addCell(celda(horas.get(fila).format(HORA), normal, TextAlignment.CENTER));
+                for (int columna = 0; columna < recursos.size(); columna++) {
+                    tabla.addCell(celda(matriz.get(fila).get(columna), normal, TextAlignment.LEFT));
+                }
+            }
+            document.add(tabla);
         }
         return absoluto;
     }
