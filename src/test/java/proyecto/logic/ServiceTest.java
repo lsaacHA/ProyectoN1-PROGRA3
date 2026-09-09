@@ -123,6 +123,16 @@ class ServiceTest {
                 LocalDate.now().plusDays(1), LocalTime.of(10, 0), LocalTime.of(9, 0), List.of()));
     }
 
+    @Test
+    void rechazaCategoriasQueNoPertenecenAlXml() throws Exception {
+        Service service = nuevoService();
+        Funcionario funcionario = service.getFuncionarios().get(0);
+        Categoria ajena = new Categoria("CAT-AJENA", "Categoría ajena");
+        Exception error = assertThrows(Exception.class, () -> service.reservar(funcionario, "Reunión",
+                LocalDate.now().plusDays(1), LocalTime.of(8, 0), LocalTime.of(9, 0), List.of(ajena)));
+        assertTrue(error.getMessage().contains("no registrada"));
+    }
+
     private Service nuevoService() throws Exception {
         return new Service(Files.createTempDirectory("funcionarios-").resolve("datos.xml"));
     }

@@ -1,5 +1,7 @@
 package proyecto.logic;
 
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.service.AiServices;
 import proyecto.data.Data;
 
 import java.nio.file.Path;
@@ -43,6 +45,28 @@ public class Service {
             throw new Exception("La clave nueva es obligatoria");
         usuario.setClave(claveNueva);
         store();
+    }
+
+    public ReservaExtraccion extraerReserva(String frase) throws Exception {
+        if (frase == null || frase.isBlank())
+            throw new Exception("Debe escribir una frase para extraer la reserva");
+        if (data.getCategorias().isEmpty())
+            throw new Exception("No hay categorías registradas para interpretar la frase");
+
+        OpenAiChatModel modelo = OpenAiChatModel.builder()
+                .baseUrl("http://langchain4j.dev/demo/openai/v1")
+                .apiKey("demo")
+                .modelName("gpt-4o-mini")
+                .build();
+        ReservaExtractorService extractor = AiServices.create(ReservaExtractorService.class, modelo);
+        String categorias = data.getCategorias().stream()
+                .map(Categoria::getDescripcion)
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .reduce((primera, siguiente) -> primera + "\n" + siguiente)
+                .orElse("");
+        ReservaExtraccion resultado = extractor.extraer(frase.trim(), categorias, LocalDate.now().toString());
+        if (resultado == null) throw new Exception("La IA no devolvió información de la reserva");
+        return resultado;
     }
 
     public List<Funcionario> buscarFuncionarios(String id, String nombre) {
@@ -263,10 +287,17 @@ public class Service {
         if (fecha.isBefore(LocalDate.now())) throw new Exception("La fecha no puede estar en el pasado");
         if (inicio == null || fin == null) throw new Exception("Debe indicar el horario");
         if (!fin.isAfter(inicio)) throw new Exception("La hora final debe ser posterior a la inicial");
+        if (fecha.equals(LocalDate.now()) && !inicio.isAfter(LocalTime.now()))
+            throw new Exception("La hora inicial debe estar en el futuro");
         if (categorias == null || categorias.isEmpty())
             throw new Exception("Debe seleccionar al menos una categoría");
+        if (categorias.stream().anyMatch(c -> c == null || c.getId() == null))
+            throw new Exception("La selección contiene una categoría inválida");
         if (categorias.stream().map(Categoria::getId).distinct().count() != categorias.size())
             throw new Exception("No debe repetir categorías");
+        boolean todasRegistradas = categorias.stream().allMatch(seleccionada ->
+                data.getCategorias().stream().anyMatch(registrada -> mismaCategoria(registrada, seleccionada)));
+        if (!todasRegistradas) throw new Exception("La selección contiene una categoría no registrada");
     }
 
     private boolean estaDisponible(Recurso recurso, LocalDate fecha, LocalTime inicio, LocalTime fin) {

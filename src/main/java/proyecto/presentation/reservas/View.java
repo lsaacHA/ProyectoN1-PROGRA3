@@ -19,7 +19,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class View implements PropertyChangeListener {
@@ -51,7 +50,6 @@ public class View implements PropertyChangeListener {
     };
 
     public View() {
-        extraerFld.setEnabled(false);
         cancelarReservaFld.setEnabled(false);
         fechaFld.setDate(LocalDate.now().plusDays(1));
         reservasFld.getSelectionModel().addListSelectionListener(event ->
@@ -67,10 +65,35 @@ public class View implements PropertyChangeListener {
     }
 
     public String getActividad() { return actividadFld.getText(); }
+    public String getFrase() { return fraseFld.getText(); }
     public LocalDate getFecha() { return fechaFld.getDate(); }
     public LocalTime getHoraInicio() { return HORAS_INICIO[horaInicioFld.getSelectedIndex()]; }
     public LocalTime getHoraFin() { return HORAS_FIN[horaFinFld.getSelectedIndex()]; }
     public List<Categoria> getCategoriasSeleccionadas() { return categoriasFld.getSelectedValuesList(); }
+
+    public void cargarExtraccion(String actividad, LocalDate fecha, LocalTime inicio,
+                                 LocalTime fin, List<Categoria> categorias) {
+        int indiceInicio = indiceHora(HORAS_INICIO, inicio);
+        int indiceFin = indiceHora(HORAS_FIN, fin);
+        if (indiceInicio < 0 || indiceFin < 0)
+            throw new IllegalArgumentException("El horario extraído no está disponible en los selectores");
+
+        actividadFld.setText(actividad);
+        fechaFld.setDate(fecha);
+        horaInicioFld.setSelectedIndex(indiceInicio);
+        horaFinFld.setSelectedIndex(indiceFin);
+        int[] indices = categorias.stream().mapToInt(categoria -> {
+            for (int i = 0; i < categoriasFld.getModel().getSize(); i++)
+                if (categoriasFld.getModel().getElementAt(i).getId().equals(categoria.getId())) return i;
+            return -1;
+        }).filter(i -> i >= 0).toArray();
+        categoriasFld.setSelectedIndices(indices);
+    }
+
+    private int indiceHora(LocalTime[] horas, LocalTime buscada) {
+        for (int i = 0; i < horas.length; i++) if (horas[i].equals(buscada)) return i;
+        return -1;
+    }
 
     public Reserva getReservaSeleccionada() {
         int fila = reservasFld.getSelectedRow();
