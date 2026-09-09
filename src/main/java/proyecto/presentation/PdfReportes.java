@@ -14,6 +14,7 @@ import com.itextpdf.layout.properties.UnitValue;
 import proyecto.logic.Categoria;
 import proyecto.logic.Funcionario;
 import proyecto.logic.Recurso;
+import proyecto.logic.Reserva;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -26,6 +27,8 @@ import java.util.List;
 /** Genera los reportes PDF compartidos por los módulos del sistema. */
 public final class PdfReportes {
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter SOLO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("HH:mm");
 
     private PdfReportes() {
     }
@@ -149,6 +152,57 @@ public final class PdfReportes {
             }
             document.add(tabla);
             document.add(new Paragraph("Total: " + recursos.size())
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+        }
+        return absoluto;
+    }
+
+    public static Path reservas(List<Reserva> reservas, Path destino) throws Exception {
+        Path absoluto = destino.toAbsolutePath();
+        if (absoluto.getParent() != null) Files.createDirectories(absoluto.getParent());
+
+        PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+        PdfFont negrita = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+
+        try (PdfWriter writer = new PdfWriter(absoluto.toString());
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+            document.setMargins(30, 30, 30, 30);
+            document.add(new Paragraph("Sistema de Reservas")
+                    .setFont(negrita).setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Listado de Reservas")
+                    .setFont(negrita).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Generado: " + LocalDateTime.now().format(FECHA))
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+
+            Table tabla = new Table(UnitValue.createPercentArray(
+                    new float[]{1.3f, 2.4f, 1.5f, 1.8f, 2.2f, 1.2f}))
+                    .useAllAvailableWidth();
+            tabla.addHeaderCell(celda("ID", negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Actividad", negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Fecha", negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Horario", negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Recursos", negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Estado", negrita, TextAlignment.CENTER));
+
+            for (Reserva reserva : reservas) {
+                String fecha = reserva.getFecha() == null ? "" : reserva.getFecha().format(SOLO_FECHA);
+                String inicio = reserva.getHoraInicio() == null ? "" : reserva.getHoraInicio().format(HORA);
+                String fin = reserva.getHoraFin() == null ? "" : reserva.getHoraFin().format(HORA);
+                String horario = inicio.isEmpty() && fin.isEmpty() ? "" : inicio + " - " + fin;
+                String recursos = reserva.getRecursos() == null ? "" : String.join(", ",
+                        reserva.getRecursos().stream().map(Recurso::getId).toList());
+                String estado = reserva.getEstado() == null ? "" : reserva.getEstado().toString();
+
+                tabla.addCell(celda(reserva.getId(), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(reserva.getActividad(), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(fecha, normal, TextAlignment.CENTER));
+                tabla.addCell(celda(horario, normal, TextAlignment.CENTER));
+                tabla.addCell(celda(recursos, normal, TextAlignment.LEFT));
+                tabla.addCell(celda(estado, normal, TextAlignment.CENTER));
+            }
+            document.add(tabla);
+            document.add(new Paragraph("Total: " + reservas.size())
                     .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
         }
         return absoluto;

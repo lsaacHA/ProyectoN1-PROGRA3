@@ -98,14 +98,6 @@ public class View implements PropertyChangeListener {
         JOptionPane.showMessageDialog(panel, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    public void imprimir() {
-        try {
-            reservasFld.print(JTable.PrintMode.FIT_WIDTH);
-        } catch (Exception exception) {
-            mostrarError("No se pudo imprimir: " + exception.getMessage());
-        }
-    }
-
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         if (Model.LIST.equals(event.getPropertyName())) {

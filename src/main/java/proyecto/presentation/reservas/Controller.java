@@ -5,9 +5,11 @@ import proyecto.logic.Reserva;
 import proyecto.logic.Service;
 import proyecto.logic.Sesion;
 import proyecto.logic.Usuario;
+import proyecto.presentation.PdfReportes;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Path;
 
 public class Controller implements ActionListener {
     private final Model model;
@@ -78,12 +80,23 @@ public class Controller implements ActionListener {
         }
     }
 
+    private void imprimir() {
+        try {
+            Path archivo = PdfReportes.reservas(
+                    model.getList(), Path.of("reportes", "reservas.pdf"));
+            PdfReportes.abrir(archivo);
+            view.mostrarMensaje("Reporte generado correctamente en " + archivo);
+        } catch (Exception exception) {
+            view.mostrarError("No se pudo generar el reporte: " + exception.getMessage());
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent event) {
         if (event.getSource() == view.getReservarFld()) reservar();
         else if (event.getSource() == view.getCancelarReservaFld()) cancelar();
         else if (event.getSource() == view.getLimpiarFld()) view.limpiar();
-        else if (event.getSource() == view.getImprimirFld()) view.imprimir();
+        else if (event.getSource() == view.getImprimirFld()) imprimir();
         else if (event.getSource() == view.getExtraerFld())
             view.mostrarMensaje("La extracción con IA se implementará en el siguiente paso");
     }
