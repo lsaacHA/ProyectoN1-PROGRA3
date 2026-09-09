@@ -11,6 +11,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import proyecto.logic.Categoria;
 import proyecto.logic.Funcionario;
 
 import java.awt.Desktop;
@@ -77,5 +78,39 @@ public final class PdfReportes {
         if (!Desktop.isDesktopSupported())
             throw new Exception("El sistema no permite abrir archivos automáticamente");
         Desktop.getDesktop().open(pdf);
+    }
+
+    public static Path categorias(List<Categoria> categorias, Path destino) throws Exception {
+        Path absoluto = destino.toAbsolutePath();
+        if (absoluto.getParent() != null) Files.createDirectories(absoluto.getParent());
+
+        PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+        PdfFont negrita = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+
+        try (PdfWriter writer = new PdfWriter(absoluto.toString());
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+            document.setMargins(30, 30, 30, 30);
+            document.add(new Paragraph("Sistema de Reservas")
+                    .setFont(negrita).setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Listado de Categorías")
+                    .setFont(negrita).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Generado: " + LocalDateTime.now().format(FECHA))
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+
+            Table tabla = new Table(UnitValue.createPercentArray(new float[]{1, 3}))
+                    .useAllAvailableWidth();
+            tabla.addHeaderCell(celda("ID", negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Descripción", negrita, TextAlignment.CENTER));
+
+            for (Categoria categoria : categorias) {
+                tabla.addCell(celda(categoria.getId(), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(categoria.getDescripcion(), normal, TextAlignment.LEFT));
+            }
+            document.add(tabla);
+            document.add(new Paragraph("Total: " + categorias.size())
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+        }
+        return absoluto;
     }
 }
