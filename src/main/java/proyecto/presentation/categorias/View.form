@@ -110,6 +110,7 @@
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <icon value="proyecto/presentation/icons/save.png"/>
                   <text value="Guardar"/>
                 </properties>
               </component>
@@ -118,6 +119,7 @@
                   <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <icon value="proyecto/presentation/icons/delete.png"/>
                   <text value="Borrar"/>
                 </properties>
               </component>
@@ -126,6 +128,7 @@
                   <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <icon value="proyecto/presentation/icons/clear.png"/>
                   <text value="Limpiar "/>
                 </properties>
               </component>
@@ -212,6 +215,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <icon value="proyecto/presentation/icons/search.png"/>
                       <text value="Buscar"/>
                     </properties>
                   </component>
@@ -230,6 +234,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <icon value="proyecto/presentation/icons/pdf.png"/>
                       <text value="Imprimir"/>
                     </properties>
                   </component>
@@ -301,36 +306,42 @@
               <component id="be9b8" class="javax.swing.JButton" binding="funcionariosButton" default-binding="true">
                 <constraints/>
                 <properties>
+                  <icon value="proyecto/presentation/icons/funcionarios.png"/>
                   <text value="Funcionarios "/>
                 </properties>
               </component>
               <component id="9bf65" class="javax.swing.JButton" binding="categoriasButton" default-binding="true">
                 <constraints/>
                 <properties>
+                  <icon value="proyecto/presentation/icons/categorias.png"/>
                   <text value="Categorias"/>
                 </properties>
               </component>
               <component id="241ff" class="javax.swing.JButton" binding="recursosButton" default-binding="true">
                 <constraints/>
                 <properties>
+                  <icon value="proyecto/presentation/icons/recursos.png"/>
                   <text value="Recursos"/>
                 </properties>
               </component>
               <component id="a21f7" class="javax.swing.JButton" binding="calendarizacionButton" default-binding="true">
                 <constraints/>
                 <properties>
+                  <icon value="proyecto/presentation/icons/calendarizacion.png"/>
                   <text value="Calendarizacion"/>
                 </properties>
               </component>
               <component id="bce7c" class="javax.swing.JButton" binding="actividadesButton1" default-binding="true">
                 <constraints/>
                 <properties>
+                  <icon value="proyecto/presentation/icons/actividades.png"/>
                   <text value="Actividades"/>
                 </properties>
               </component>
               <component id="329ca" class="javax.swing.JButton" binding="estadisticasButton" default-binding="true">
                 <constraints/>
                 <properties>
+                  <icon value="proyecto/presentation/icons/statistics.png"/>
                   <text value="Estadisticas"/>
                 </properties>
               </component>

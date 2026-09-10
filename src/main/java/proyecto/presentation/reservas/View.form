@@ -36,7 +36,7 @@
           </scrollpane>
           <component id="extraer1" class="javax.swing.JButton" binding="extraerFld">
             <constraints><grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"><preferred-size width="110" height="34"/></grid></constraints>
-            <properties><text value="Extraer"/></properties>
+            <properties><icon value="proyecto/presentation/icons/ai.png"/><text value="Extraer"/></properties>
           </component>
           <component id="lactividad" class="javax.swing.JLabel">
             <constraints><grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/></constraints>
@@ -97,9 +97,9 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="reservar1" class="javax.swing.JButton" binding="reservarFld"><constraints/><properties><text value="Reservar"/></properties></component>
-              <component id="cancelar1" class="javax.swing.JButton" binding="cancelarReservaFld"><constraints/><properties><text value="Cancelar reserva seleccionada"/></properties></component>
-              <component id="limpiar1" class="javax.swing.JButton" binding="limpiarFld"><constraints/><properties><text value="Limpiar"/></properties></component>
+              <component id="reservar1" class="javax.swing.JButton" binding="reservarFld"><constraints/><properties><icon value="proyecto/presentation/icons/save.png"/><text value="Reservar"/></properties></component>
+              <component id="cancelar1" class="javax.swing.JButton" binding="cancelarReservaFld"><constraints/><properties><icon value="proyecto/presentation/icons/cancel.png"/><text value="Cancelar reserva seleccionada"/></properties></component>
+              <component id="limpiar1" class="javax.swing.JButton" binding="limpiarFld"><constraints/><properties><icon value="proyecto/presentation/icons/clear.png"/><text value="Limpiar"/></properties></component>
             </children>
           </grid>
         </children>
@@ -123,7 +123,7 @@
           </scrollpane>
           <component id="imprimir1" class="javax.swing.JButton" binding="imprimirFld">
             <constraints><grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"><preferred-size width="105" height="36"/></grid></constraints>
-            <properties><text value="Imprimir"/></properties>
+            <properties><icon value="proyecto/presentation/icons/pdf.png"/><text value="Imprimir"/></properties>
           </component>
         </children>
       </grid>

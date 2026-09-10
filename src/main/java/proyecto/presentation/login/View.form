@@ -82,21 +82,24 @@
             <children>
               <component id="c1001" class="javax.swing.JButton" binding="ingresarFld">
                 <constraints/>
-                <properties>
-                  <text value="Ingresar"/>
-                </properties>
+          <properties>
+            <icon value="proyecto/presentation/icons/login.png"/>
+            <text value="Ingresar"/>
+          </properties>
               </component>
               <component id="c1002" class="javax.swing.JButton" binding="cancelarFld">
                 <constraints/>
-                <properties>
-                  <text value="Cancelar"/>
-                </properties>
+          <properties>
+            <icon value="proyecto/presentation/icons/cancel.png"/>
+            <text value="Cancelar"/>
+          </properties>
               </component>
               <component id="c1003" class="javax.swing.JButton" binding="cambiarClaveFld">
                 <constraints/>
-                <properties>
-                  <text value="Cambiar clave"/>
-                </properties>
+          <properties>
+            <icon value="proyecto/presentation/icons/clave.png"/>
+            <text value="Cambiar clave"/>
+          </properties>
               </component>
             </children>
           </grid>
