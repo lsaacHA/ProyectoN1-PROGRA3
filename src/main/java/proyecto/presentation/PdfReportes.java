@@ -16,6 +16,8 @@ import proyecto.logic.Funcionario;
 import proyecto.logic.Recurso;
 import proyecto.logic.Reserva;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.awt.Desktop;
 import java.io.File;
 import java.nio.file.Files;
@@ -208,35 +210,87 @@ public final class PdfReportes {
         return absoluto;
     }
 
-    public static Path actividades(List<Reserva> reservas, java.time.LocalDate fechaReferencia,
+    public static Path actividades(List<Reserva> reservas, LocalDate fechaReferencia,
                                    Path destino) throws Exception {
         Path absoluto = destino.toAbsolutePath();
         if (absoluto.getParent() != null) Files.createDirectories(absoluto.getParent());
-        java.time.LocalDate lunes = fechaReferencia.with(
+        LocalDate lunes = fechaReferencia.with(
                 java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+
         try (PdfWriter writer = new PdfWriter(absoluto.toString());
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {
             PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
             PdfFont negrita = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+
             document.add(new Paragraph("PROGRAMACIÓN SEMANAL DE ACTIVIDADES")
                     .setFont(negrita).setFontSize(15).setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("Semana del " + lunes + " al " + lunes.plusDays(6))
                     .setFont(normal).setTextAlignment(TextAlignment.CENTER));
-            Table tabla = new Table(UnitValue.createPercentArray(new float[]{14, 18, 18, 16, 16, 18}))
-                    .useAllAvailableWidth();
-            for (String titulo : new String[]{"Fecha", "Horario", "Actividad", "Funcionario", "Estado", "ID"})
+
+            Table tabla = new Table(UnitValue.createPercentArray(
+                    new float[]{14, 18, 18, 16, 16, 18})).useAllAvailableWidth();
+            for (String titulo : new String[]{"Fecha", "Horario", "Actividad", "Funcionario", "Estado", "ID"}) {
                 tabla.addHeaderCell(celda(titulo, negrita, TextAlignment.CENTER));
+            }
+
             for (Reserva reserva : reservas) {
                 tabla.addCell(celda(String.valueOf(reserva.getFecha()), normal, TextAlignment.LEFT));
-                tabla.addCell(celda(reserva.getHoraInicio() + " - " + reserva.getHoraFin(), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(reserva.getHoraInicio() + " - " + reserva.getHoraFin(),
+                        normal, TextAlignment.LEFT));
                 tabla.addCell(celda(reserva.getActividad(), normal, TextAlignment.LEFT));
-                tabla.addCell(celda(reserva.getFuncionario() == null ? "" : reserva.getFuncionario().getNombre(), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(reserva.getFuncionario() == null
+                                ? "" : reserva.getFuncionario().getNombre(),
+                        normal, TextAlignment.LEFT));
                 tabla.addCell(celda(String.valueOf(reserva.getEstado()), normal, TextAlignment.CENTER));
                 tabla.addCell(celda(reserva.getId(), normal, TextAlignment.LEFT));
             }
+
             document.add(tabla);
             document.add(new Paragraph("Total: " + reservas.size()).setFont(normal).setFontSize(9));
+        }
+        return absoluto;
+    }
+
+    public static Path calendarizacion(LocalDate fecha, Categoria categoria, List<Recurso> recursos,
+                                       List<LocalTime> horas, List<List<String>> matriz,
+                                       Path destino) throws Exception {
+        Path absoluto = destino.toAbsolutePath();
+        if (absoluto.getParent() != null) Files.createDirectories(absoluto.getParent());
+
+        PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+        PdfFont negrita = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+
+        try (PdfWriter writer = new PdfWriter(absoluto.toString());
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+            document.setMargins(30, 30, 30, 30);
+            document.add(new Paragraph("Sistema de Reservas")
+                    .setFont(negrita).setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Calendarización de Recursos")
+                    .setFont(negrita).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Fecha: " + (fecha == null ? "" : fecha.format(SOLO_FECHA))
+                    + "   Categoría: " + (categoria == null ? "" : categoria.getDescripcion()))
+                    .setFont(normal).setFontSize(10).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Generado: " + LocalDateTime.now().format(FECHA))
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+
+            float[] anchos = new float[1 + recursos.size()];
+            anchos[0] = 1f;
+            for (int i = 1; i < anchos.length; i++) anchos[i] = 2f;
+
+            Table tabla = new Table(UnitValue.createPercentArray(anchos)).useAllAvailableWidth();
+            tabla.addHeaderCell(celda("Hora", negrita, TextAlignment.CENTER));
+            for (Recurso recurso : recursos)
+                tabla.addHeaderCell(celda(recurso.getDescripcion(), negrita, TextAlignment.CENTER));
+
+            for (int fila = 0; fila < horas.size(); fila++) {
+                tabla.addCell(celda(horas.get(fila).format(HORA), normal, TextAlignment.CENTER));
+                for (int columna = 0; columna < recursos.size(); columna++) {
+                    tabla.addCell(celda(matriz.get(fila).get(columna), normal, TextAlignment.LEFT));
+                }
+            }
+            document.add(tabla);
         }
         return absoluto;
     }

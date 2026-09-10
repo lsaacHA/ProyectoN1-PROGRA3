@@ -77,9 +77,15 @@ public class Application {
             proyecto.presentation.reservas.View view = new proyecto.presentation.reservas.View();
             new proyecto.presentation.reservas.Controller(model, view, service);
 
+            proyecto.presentation.calendarizacion.Model modelCalendarizacion =
+                    new proyecto.presentation.calendarizacion.Model();
+            proyecto.presentation.calendarizacion.View viewCalendarizacion =
+                    new proyecto.presentation.calendarizacion.View();
+            new proyecto.presentation.calendarizacion.Controller(modelCalendarizacion, viewCalendarizacion, service);
+
             JTabbedPane tabs = new JTabbedPane();
             tabs.addTab("Reservas", icono("reservas.png"), view.getPanel());
-            tabs.addTab("Calendarización", icono("calendarizacion.png"), pendiente("Calendarización"));
+            tabs.addTab("Calendarización", icono("calendarizacion.png"), viewCalendarizacion.getPanel());
             tabs.addTab("Actividades", icono("actividades.png"), pendiente("Actividades"));
             tabs.addTab("Estadísticas", icono("statistics.png"), pendiente("Estadísticas"));
 
