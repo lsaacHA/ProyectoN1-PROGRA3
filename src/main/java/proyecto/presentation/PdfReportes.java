@@ -209,6 +209,49 @@ public final class PdfReportes {
         }
         return absoluto;
     }
+
+    public static Path actividades(List<Reserva> reservas, LocalDate fechaReferencia,
+                                   Path destino) throws Exception {
+        Path absoluto = destino.toAbsolutePath();
+        if (absoluto.getParent() != null) Files.createDirectories(absoluto.getParent());
+        LocalDate lunes = fechaReferencia.with(
+                java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+
+        try (PdfWriter writer = new PdfWriter(absoluto.toString());
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+            PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+            PdfFont negrita = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+
+            document.add(new Paragraph("PROGRAMACIÓN SEMANAL DE ACTIVIDADES")
+                    .setFont(negrita).setFontSize(15).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Semana del " + lunes + " al " + lunes.plusDays(6))
+                    .setFont(normal).setTextAlignment(TextAlignment.CENTER));
+
+            Table tabla = new Table(UnitValue.createPercentArray(
+                    new float[]{14, 18, 18, 16, 16, 18})).useAllAvailableWidth();
+            for (String titulo : new String[]{"Fecha", "Horario", "Actividad", "Funcionario", "Estado", "ID"}) {
+                tabla.addHeaderCell(celda(titulo, negrita, TextAlignment.CENTER));
+            }
+
+            for (Reserva reserva : reservas) {
+                tabla.addCell(celda(String.valueOf(reserva.getFecha()), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(reserva.getHoraInicio() + " - " + reserva.getHoraFin(),
+                        normal, TextAlignment.LEFT));
+                tabla.addCell(celda(reserva.getActividad(), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(reserva.getFuncionario() == null
+                                ? "" : reserva.getFuncionario().getNombre(),
+                        normal, TextAlignment.LEFT));
+                tabla.addCell(celda(String.valueOf(reserva.getEstado()), normal, TextAlignment.CENTER));
+                tabla.addCell(celda(reserva.getId(), normal, TextAlignment.LEFT));
+            }
+
+            document.add(tabla);
+            document.add(new Paragraph("Total: " + reservas.size()).setFont(normal).setFontSize(9));
+        }
+        return absoluto;
+    }
+
     public static Path calendarizacion(LocalDate fecha, Categoria categoria, List<Recurso> recursos,
                                        List<LocalTime> horas, List<List<String>> matriz,
                                        Path destino) throws Exception {
