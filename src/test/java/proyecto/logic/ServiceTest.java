@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -149,6 +150,40 @@ class ServiceTest {
 
         assertEquals(List.of(activa), service.actividadesSemana(miercoles));
         assertThrows(Exception.class, () -> service.actividadesSemana(null));
+    }
+
+    @Test
+    void calculaEstadisticasDeRecursosYActividadesPorSemana() throws Exception {
+        Service service = nuevoService();
+        Funcionario funcionario = service.getFuncionarios().get(0);
+        Categoria sala = service.guardarCategoria(null, "Sala");
+        Categoria laptop = service.guardarCategoria(null, "Laptop");
+        service.guardarCategoria(null, "Proyector sin reservas");
+        service.guardarRecurso(null, "SALA-1", sala, "Sala 1");
+        service.guardarRecurso(null, "LAP-1", laptop, "Laptop 1");
+        LocalDate lunes = LocalDate.now().plusWeeks(3).with(java.time.DayOfWeek.MONDAY);
+
+        service.reservar(funcionario, "Reunión", lunes,
+                LocalTime.of(8, 0), LocalTime.of(9, 0), List.of(sala, laptop));
+        Reserva cancelada = service.reservar(funcionario, "Cancelada", lunes.plusDays(1),
+                LocalTime.of(10, 0), LocalTime.of(11, 0), List.of(sala));
+        service.cancelarReserva(cancelada, funcionario);
+
+        Map<String, Integer> recursos = service.estadisticasRecursos(lunes, lunes.plusDays(6));
+        Map<String, Integer> actividades = service.estadisticasActividades(lunes, lunes.plusDays(6));
+        assertEquals(1, recursos.get("Sala"));
+        assertEquals(1, recursos.get("Laptop"));
+        assertTrue(!recursos.containsKey("Proyector sin reservas"));
+        assertEquals(1, actividades.values().iterator().next());
+    }
+
+    @Test
+    void rechazaPeriodoEstadisticoInvertido() throws Exception {
+        Service service = nuevoService();
+        LocalDate hoy = LocalDate.now();
+        assertThrows(Exception.class, () -> service.estadisticasRecursos(hoy, hoy.minusDays(1)));
+        assertThrows(Exception.class, () -> service.estadisticasActividades(null, hoy));
+        assertTrue(service.estadisticasActividades(hoy, hoy.plusWeeks(4)).isEmpty());
     }
 
     private Service nuevoService() throws Exception {

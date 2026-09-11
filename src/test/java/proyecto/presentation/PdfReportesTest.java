@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -79,6 +81,24 @@ class PdfReportesTest {
                 List.of(), EstadoReserva.ACTIVA);
 
         PdfReportes.actividades(List.of(reserva), LocalDate.of(2026, 9, 9), destino);
+
+        assertTrue(Files.exists(destino));
+        assertTrue(Files.size(destino) > 500);
+        try (PdfDocument pdf = new PdfDocument(new PdfReader(destino.toString()))) {
+            assertEquals(1, pdf.getNumberOfPages());
+        }
+    }
+
+    @Test
+    void generaReporteDeEstadisticasValido() throws Exception {
+        Path destino = Path.of("target", "test-output", "estadisticas.pdf");
+        Map<String, Integer> datos = new LinkedHashMap<>();
+        datos.put("Sala", 2);
+        datos.put("Laptop", 3);
+
+        PdfReportes.estadisticas("Estadísticas de recursos",
+                LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 30),
+                "Categoría", datos, destino);
 
         assertTrue(Files.exists(destino));
         assertTrue(Files.size(destino) > 500);

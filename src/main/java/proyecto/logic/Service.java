@@ -7,9 +7,12 @@ import proyecto.data.Data;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /** Punto de acceso de la capa de presentación a la lógica y persistencia. */
@@ -279,6 +282,48 @@ public class Service {
                 .sorted(Comparator.comparing(Reserva::getFecha)
                         .thenComparing(Reserva::getHoraInicio))
                 .toList();
+    }
+
+    public Map<String, Integer> estadisticasRecursos(LocalDate desde, LocalDate hasta) throws Exception {
+        validarPeriodo(desde, hasta);
+        Map<String, Integer> resultado = new LinkedHashMap<>();
+        data.getReservas().stream()
+                .filter(r -> reservaActivaEnPeriodo(r, desde, hasta))
+                .filter(r -> r.getRecursos() != null)
+                .flatMap(r -> r.getRecursos().stream())
+                .filter(recurso -> recurso != null && recurso.getCategoria() != null)
+                .forEach(recurso -> resultado.merge(
+                        recurso.getCategoria().getDescripcion(), 1, Integer::sum));
+        return resultado.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
+                .collect(java.util.stream.Collectors.toMap(
+                        Map.Entry::getKey, Map.Entry::getValue,
+                        (primero, segundo) -> primero, LinkedHashMap::new));
+    }
+
+    public Map<String, Integer> estadisticasActividades(LocalDate desde, LocalDate hasta) throws Exception {
+        validarPeriodo(desde, hasta);
+        Map<String, Integer> resultado = new LinkedHashMap<>();
+        DateTimeFormatter formato = DateTimeFormatter.ISO_LOCAL_DATE;
+        data.getReservas().stream()
+                .filter(r -> reservaActivaEnPeriodo(r, desde, hasta))
+                .sorted(Comparator.comparing(Reserva::getFecha))
+                .forEach(reserva -> {
+                    LocalDate lunes = reserva.getFecha().with(
+                            java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+                    resultado.merge(lunes.format(formato), 1, Integer::sum);
+                });
+        return resultado;
+    }
+
+    private void validarPeriodo(LocalDate desde, LocalDate hasta) throws Exception {
+        if (desde == null || hasta == null) throw new Exception("Debe indicar las fechas desde y hasta");
+        if (hasta.isBefore(desde)) throw new Exception("La fecha hasta no puede ser anterior a la fecha desde");
+    }
+
+    private boolean reservaActivaEnPeriodo(Reserva reserva, LocalDate desde, LocalDate hasta) {
+        return reserva.getEstado() == EstadoReserva.ACTIVA && reserva.getFecha() != null
+                && !reserva.getFecha().isBefore(desde) && !reserva.getFecha().isAfter(hasta);
     }
 
     public void cancelarReserva(Reserva reserva, Funcionario funcionario) throws Exception {
