@@ -48,17 +48,19 @@
             <constraints>
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties>
-              <text value="Cargar"/>
-            </properties>
+          <properties>
+            <icon value="proyecto/presentation/icons/check.png"/>
+            <text value="Cargar"/>
+          </properties>
           </component>
           <component id="imprimir" class="javax.swing.JButton" binding="imprimirFld">
             <constraints>
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties>
-              <text value="Imprimir"/>
-            </properties>
+          <properties>
+            <icon value="proyecto/presentation/icons/pdf.png"/>
+            <text value="Imprimir"/>
+          </properties>
           </component>
         </children>
       </grid>
