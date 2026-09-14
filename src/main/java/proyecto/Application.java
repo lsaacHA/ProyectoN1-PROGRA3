@@ -7,15 +7,11 @@ import proyecto.logic.Usuario;
 
 import javax.swing.JFrame;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.net.URL;
 
@@ -50,17 +46,49 @@ public class Application {
             mostrarReservas(usuario);
             return;
         }
+        mostrarAdministracion(usuario);
+    }
+
+    private static void mostrarAdministracion(Usuario usuario) {
         try {
             Service service = new Service();
-            proyecto.presentation.funcionarios.Model model = new proyecto.presentation.funcionarios.Model();
-            proyecto.presentation.funcionarios.View view = new proyecto.presentation.funcionarios.View();
-            new proyecto.presentation.funcionarios.Controller(model, view, service);
+            proyecto.presentation.funcionarios.Model funcionariosModel = new proyecto.presentation.funcionarios.Model();
+            proyecto.presentation.funcionarios.View funcionariosView = new proyecto.presentation.funcionarios.View();
+            new proyecto.presentation.funcionarios.Controller(funcionariosModel, funcionariosView, service);
 
-            JFrame window = new JFrame("SISTEMA DE RESERVAS - admin (ADMIN)");
+            proyecto.presentation.categorias.Model categoriasModel = new proyecto.presentation.categorias.Model();
+            proyecto.presentation.categorias.View categoriasView = new proyecto.presentation.categorias.View();
+            new proyecto.presentation.categorias.Controller(categoriasModel, categoriasView, service);
+
+            proyecto.presentation.recursos.Model recursosModel = new proyecto.presentation.recursos.Model();
+            proyecto.presentation.recursos.View recursosView = new proyecto.presentation.recursos.View();
+            new proyecto.presentation.recursos.Controller(recursosModel, recursosView, service);
+
+            proyecto.presentation.calendarizacion.Model calendarizacionModel = new proyecto.presentation.calendarizacion.Model();
+            proyecto.presentation.calendarizacion.View calendarizacionView = new proyecto.presentation.calendarizacion.View();
+            new proyecto.presentation.calendarizacion.Controller(calendarizacionModel, calendarizacionView, service);
+
+            proyecto.presentation.actividades.Model actividadesModel = new proyecto.presentation.actividades.Model();
+            proyecto.presentation.actividades.View actividadesView = new proyecto.presentation.actividades.View();
+            new proyecto.presentation.actividades.Controller(actividadesModel, actividadesView, service);
+
+            proyecto.presentation.estadisticas.Model estadisticasModel = new proyecto.presentation.estadisticas.Model();
+            proyecto.presentation.estadisticas.View estadisticasView = new proyecto.presentation.estadisticas.View();
+            new proyecto.presentation.estadisticas.Controller(estadisticasModel, estadisticasView, service);
+
+            JTabbedPane tabs = new JTabbedPane();
+            tabs.addTab("Funcionarios", icono("funcionarios.png"), funcionariosView.getPanel());
+            tabs.addTab("Categorías", icono("categorias.png"), categoriasView.getPanel());
+            tabs.addTab("Recursos", icono("recursos.png"), recursosView.getPanel());
+            tabs.addTab("Calendarización", icono("calendarizacion.png"), calendarizacionView.getPanel());
+            tabs.addTab("Actividades", icono("actividades.png"), actividadesView.getPanel());
+            tabs.addTab("Estadísticas", icono("statistics.png"), estadisticasView.getPanel());
+
+            JFrame window = new JFrame("SISTEMA DE RESERVAS - " + usuario.getId() + " (ADMINISTRADOR)");
             aplicarIconoVentana(window);
-            window.setContentPane(view.getPanel());
+            window.setContentPane(tabs);
             window.pack();
-            window.setSize(Math.max(window.getWidth(), 900), Math.max(window.getHeight(), 620));
+            window.setSize(Math.max(window.getWidth(), 1180), Math.max(window.getHeight(), 700));
             window.setLocationRelativeTo(null);
             window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             window.setVisible(true);
@@ -83,11 +111,23 @@ public class Application {
                     new proyecto.presentation.calendarizacion.View();
             new proyecto.presentation.calendarizacion.Controller(modelCalendarizacion, viewCalendarizacion, service);
 
+            proyecto.presentation.actividades.Model modelActividades =
+                    new proyecto.presentation.actividades.Model();
+            proyecto.presentation.actividades.View viewActividades =
+                    new proyecto.presentation.actividades.View();
+            new proyecto.presentation.actividades.Controller(modelActividades, viewActividades, service);
+
+            proyecto.presentation.estadisticas.Model modelEstadisticas =
+                    new proyecto.presentation.estadisticas.Model();
+            proyecto.presentation.estadisticas.View viewEstadisticas =
+                    new proyecto.presentation.estadisticas.View();
+            new proyecto.presentation.estadisticas.Controller(modelEstadisticas, viewEstadisticas, service);
+
             JTabbedPane tabs = new JTabbedPane();
             tabs.addTab("Reservas", icono("reservas.png"), view.getPanel());
             tabs.addTab("Calendarización", icono("calendarizacion.png"), viewCalendarizacion.getPanel());
-            tabs.addTab("Actividades", icono("actividades.png"), pendiente("Actividades"));
-            tabs.addTab("Estadísticas", icono("statistics.png"), pendiente("Estadísticas"));
+            tabs.addTab("Actividades", icono("actividades.png"), viewActividades.getPanel());
+            tabs.addTab("Estadísticas", icono("statistics.png"), viewEstadisticas.getPanel());
 
             JFrame window = new JFrame("SISTEMA DE RESERVAS - " + usuario.getId() + " (FUNCIONARIO)");
             aplicarIconoVentana(window);
@@ -101,12 +141,6 @@ public class Application {
             JOptionPane.showMessageDialog(null, "No se pudo abrir Reservas: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private static JPanel pendiente(String nombre) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JLabel(nombre + " (pendiente de integración)", SwingConstants.CENTER));
-        return panel;
     }
 
     private static ImageIcon icono(String archivo) {

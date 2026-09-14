@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 /** Genera los reportes PDF compartidos por los módulos del sistema. */
 public final class PdfReportes {
@@ -289,6 +290,41 @@ public final class PdfReportes {
                 for (int columna = 0; columna < recursos.size(); columna++) {
                     tabla.addCell(celda(matriz.get(fila).get(columna), normal, TextAlignment.LEFT));
                 }
+            }
+            document.add(tabla);
+        }
+        return absoluto;
+    }
+
+    public static Path estadisticas(String titulo, LocalDate desde, LocalDate hasta,
+                                    String primeraColumna, Map<String, Integer> datos,
+                                    Path destino) throws Exception {
+        Path absoluto = destino.toAbsolutePath();
+        if (absoluto.getParent() != null) Files.createDirectories(absoluto.getParent());
+
+        PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+        PdfFont negrita = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+        try (PdfWriter writer = new PdfWriter(absoluto.toString());
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+            document.setMargins(30, 30, 30, 30);
+            document.add(new Paragraph("Sistema de Reservas")
+                    .setFont(negrita).setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph(titulo)
+                    .setFont(negrita).setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Periodo: " + desde.format(SOLO_FECHA)
+                    + " al " + hasta.format(SOLO_FECHA))
+                    .setFont(normal).setFontSize(10).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Generado: " + LocalDateTime.now().format(FECHA))
+                    .setFont(normal).setFontSize(9).setTextAlignment(TextAlignment.RIGHT));
+
+            Table tabla = new Table(UnitValue.createPercentArray(new float[]{4, 1}))
+                    .useAllAvailableWidth();
+            tabla.addHeaderCell(celda(primeraColumna, negrita, TextAlignment.CENTER));
+            tabla.addHeaderCell(celda("Cantidad", negrita, TextAlignment.CENTER));
+            for (Map.Entry<String, Integer> dato : datos.entrySet()) {
+                tabla.addCell(celda(dato.getKey(), normal, TextAlignment.LEFT));
+                tabla.addCell(celda(String.valueOf(dato.getValue()), normal, TextAlignment.CENTER));
             }
             document.add(tabla);
         }
