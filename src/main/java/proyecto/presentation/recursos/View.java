@@ -7,6 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
@@ -17,7 +18,9 @@ public class View implements PropertyChangeListener {
     private JPanel panel;
     private JPanel filtroPanel;
     private JPanel recursoPanel;
+    private JPanel botonesPanel;
     private JPanel listadoPanel;
+    private JScrollPane listadoScroll;
     private JComboBox<Categoria> categoriaFiltroFld;
     private JTextField descripcionFiltroFld;
     private JButton buscarFld;

@@ -12,18 +12,13 @@ import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.JButton;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,12 +27,18 @@ import java.util.Map;
 
 public class View implements PropertyChangeListener {
     private JPanel panel;
+    private JPanel recursosPanel;
+    private JPanel filtroRecursosPanel;
+    private JPanel botonesRecursosPanel;
     private DatePicker recursosDesdeFld;
     private DatePicker recursosHastaFld;
     private JButton cargarRecursosFld;
     private JButton imprimirRecursosFld;
     private JTable recursosFld;
     private JPanel graficoRecursosFld;
+    private JPanel actividadesPanel;
+    private JPanel filtroActividadesPanel;
+    private JPanel botonesActividadesPanel;
     private DatePicker actividadesDesdeFld;
     private DatePicker actividadesHastaFld;
     private JButton cargarActividadesFld;
@@ -53,7 +54,6 @@ public class View implements PropertyChangeListener {
     }
 
     public View() {
-        if (panel == null) construirInterfaz();
         LocalDate hoy = LocalDate.now();
         recursosDesdeFld.setDate(hoy.minusMonths(1));
         recursosHastaFld.setDate(hoy);
@@ -61,62 +61,6 @@ public class View implements PropertyChangeListener {
         actividadesHastaFld.setDate(hoy);
         recursosFld.setFillsViewportHeight(true);
         actividadesFld.setFillsViewportHeight(true);
-    }
-
-    private void construirInterfaz() {
-        createUIComponents();
-        recursosFld = new JTable();
-        actividadesFld = new JTable();
-        graficoRecursosFld = new JPanel(new BorderLayout());
-        graficoActividadesFld = new JPanel(new BorderLayout());
-        cargarRecursosFld = boton("Cargar", "check.png");
-        imprimirRecursosFld = boton("Imprimir", "pdf.png");
-        cargarActividadesFld = boton("Cargar", "check.png");
-        imprimirActividadesFld = boton("Imprimir", "pdf.png");
-
-        JPanel recursosPanel = construirSeccion("Recursos", recursosDesdeFld, recursosHastaFld,
-                cargarRecursosFld, imprimirRecursosFld, recursosFld, graficoRecursosFld);
-        JPanel actividadesPanel = construirSeccion("Actividades", actividadesDesdeFld, actividadesHastaFld,
-                cargarActividadesFld, imprimirActividadesFld, actividadesFld, graficoActividadesFld);
-
-        panel = new JPanel(new GridLayout(1, 2, 14, 0));
-        panel.setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
-        panel.add(recursosPanel);
-        panel.add(actividadesPanel);
-    }
-
-    private JPanel construirSeccion(String titulo, DatePicker desde, DatePicker hasta,
-                                    JButton cargar, JButton imprimir, JTable tabla, JPanel grafico) {
-        JPanel filtro = new JPanel(new GridLayout(2, 1, 0, 8));
-        filtro.setBorder(BorderFactory.createTitledBorder("Fechas desde y hasta"));
-        JPanel fechas = new JPanel(new GridLayout(1, 4, 8, 0));
-        fechas.add(new JLabel("Desde"));
-        fechas.add(desde);
-        fechas.add(new JLabel("Hasta"));
-        fechas.add(hasta);
-        JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        botones.add(cargar);
-        botones.add(imprimir);
-        filtro.add(fechas);
-        filtro.add(botones);
-
-        JScrollPane listado = new JScrollPane(tabla);
-        listado.setBorder(BorderFactory.createTitledBorder("Resultados"));
-        grafico.setBorder(BorderFactory.createTitledBorder("Gráfico"));
-        JPanel contenido = new JPanel(new GridLayout(2, 1, 0, 10));
-        contenido.add(listado);
-        contenido.add(grafico);
-
-        JPanel seccion = new JPanel(new BorderLayout(0, 10));
-        seccion.setBorder(BorderFactory.createTitledBorder(titulo));
-        seccion.add(filtro, BorderLayout.NORTH);
-        seccion.add(contenido, BorderLayout.CENTER);
-        return seccion;
-    }
-
-    private JButton boton(String texto, String icono) {
-        java.net.URL recurso = View.class.getResource("/proyecto/presentation/icons/" + icono);
-        return recurso == null ? new JButton(texto) : new JButton(texto, new ImageIcon(recurso));
     }
 
     public void setController(ActionListener controller) {
