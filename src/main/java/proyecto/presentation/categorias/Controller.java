@@ -1,92 +1,82 @@
 package proyecto.presentation.categorias;
 
 import proyecto.logic.Categoria;
+import proyecto.logic.Service;
+import proyecto.presentation.PdfReportes;
 
-import javax.swing.*;
-import java.util.List;
+import javax.swing.JOptionPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.nio.file.Path;
 
-public class Controller {
+public class Controller implements ActionListener {
+    private final Model model;
+    private final View view;
+    private final Service service;
 
-    private View view;
-    private Model model;
-    private TableModel tableModel;
-
-    private static final int[] COLUMNAS = {TableModel.ID, TableModel.DESCRIPCION};
-
-    public Controller(View view, Model model) {
-        this.view = view;
+    public Controller(Model model, View view, Service service) {
         this.model = model;
-        this.tableModel = new TableModel(COLUMNAS, model.getCategorias());
-        view.getTable1().setModel(tableModel);
-
-        registrarListeners();
-    }
-
-    private void registrarListeners() {
-        view.getBuscarButton().addActionListener(e -> buscar());
-        view.getGuardarButton().addActionListener(e -> guardar());
-        view.getBorrarButton().addActionListener(e -> borrar());
-        view.getLimpiarButton().addActionListener(e -> limpiar());
-
-        view.getTable1().getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) seleccionarFila();
-        });
+        this.view = view;
+        this.service = service;
+        model.addPropertyChangeListener(view);
+        view.setController(this);
+        buscar();
     }
 
     private void buscar() {
-        String texto = view.getBusqTxtFldDesc().getText();
-        List<Categoria> resultado = model.buscarPorDescripcion(texto);
-        tableModel.setRows(resultado);
-        tableModel.fireTableDataChanged();
+        model.setList(service.buscarCategorias(view.getBuscarDescripcion()));
     }
 
     private void guardar() {
         try {
-            String id = view.getTxtFldID().getText();
-            String descripcion = view.getCatTxtFldDesc().getText();
-            Categoria categoria = new Categoria(id.isEmpty() ? null : id, descripcion);
-            model.guardar(categoria);
-            tableModel.setRows(model.getCategorias());
-            tableModel.fireTableDataChanged();
-            limpiar();
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(view.getPanel(), ex.getMessage(),
-                    "Error de validación", JOptionPane.ERROR_MESSAGE);
-        }
+            Categoria guardada = service.guardarCategoria(view.getSeleccionado(), view.getDescripcion());
+            model.setCurrent(guardada);
+            view.limpiarFiltros();
+            model.setList(service.buscarCategorias(""));
+            model.setCurrent(null);
+            view.mostrarMensaje("Categoría guardada correctamente");
+        } catch (Exception e) { view.mostrarError(e.getMessage()); }
     }
 
     private void borrar() {
-        int fila = view.getTable1().getSelectedRow();
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(view.getPanel(), "Seleccione una categoría de la lista.",
-                    "Aviso", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        Categoria seleccionada = tableModel.getRowAt(fila);
-        int confirmar = JOptionPane.showConfirmDialog(view.getPanel(),
+        Categoria seleccionada = view.getSeleccionado();
+        if (seleccionada == null) { view.mostrarError("Debe seleccionar una categoría"); return; }
+        int respuesta = JOptionPane.showConfirmDialog(view.getPanel(),
                 "¿Desea borrar la categoría \"" + seleccionada.getDescripcion() + "\"?",
                 "Confirmar", JOptionPane.YES_NO_OPTION);
-        if (confirmar == JOptionPane.YES_OPTION) {
-            model.borrar(seleccionada.getId());
-            tableModel.setRows(model.getCategorias());
-            tableModel.fireTableDataChanged();
-            limpiar();
-        }
+        if (respuesta != JOptionPane.YES_OPTION) return;
+        try {
+            service.borrarCategoria(seleccionada);
+            model.setCurrent(null);
+            model.setList(service.buscarCategorias(view.getBuscarDescripcion()));
+            view.mostrarMensaje("Categoría borrada correctamente");
+        } catch (Exception e) { view.mostrarError(e.getMessage()); }
     }
 
     private void limpiar() {
-        view.getTxtFldID().setText("");
-        view.getCatTxtFldDesc().setText("");
-        view.getBusqTxtFldDesc().setText("");
-        view.getTable1().clearSelection();
+        view.limpiarFiltros();
+        model.setCurrent(null);
+        model.setList(service.buscarCategorias(""));
     }
 
-    private void seleccionarFila() {
-        int fila = view.getTable1().getSelectedRow();
-        if (fila != -1) {
-            Categoria categoria = tableModel.getRowAt(fila);
-            view.getTxtFldID().setText(categoria.getId());
-            view.getCatTxtFldDesc().setText(categoria.getDescripcion());
+    private void imprimir() {
+        try {
+            Path archivo = PdfReportes.categorias(model.getList(), Path.of("reportes", "categorias.pdf"));
+            PdfReportes.abrir(archivo);
+            view.mostrarMensaje("Reporte generado en: " + archivo);
+        } catch (Exception e) {
+            view.mostrarError("No se pudo generar el PDF: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        Object source = event.getSource();
+        if (source == view.getBuscarButton()) buscar();
+        else if (source == view.getImprimirButton()) imprimir();
+        else if (source == view.getGuardarButton()) guardar();
+        else if (source == view.getBorrarButton()) borrar();
+        else if (source == view.getLimpiarButton()) limpiar();
+        else buscar();
     }
 }

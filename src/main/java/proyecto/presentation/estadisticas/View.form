@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="proyecto.presentation.estadisticas.View">
+  <grid id="27dc6" binding="panel" default-binding="true" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="true" same-size-vertically="false" hgap="14" vgap="-1">
+    <margin top="14" left="14" bottom="14" right="14"/>
+    <constraints>
+      <xy x="20" y="20" width="1180" height="650"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="a1000" binding="recursosPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="10">
+        <margin top="10" left="10" bottom="10" right="10"/>
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="etched" title="Recursos"/>
+        <children>
+          <grid id="a1100" binding="filtroRecursosPanel" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="8">
+            <margin top="8" left="8" bottom="8" right="8"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="Fechas desde y hasta"/>
+            <children>
+              <component id="a1101" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties><text value="Desde"/></properties>
+              </component>
+              <component id="a1102" class="com.github.lgooddatepicker.components.DatePicker" binding="recursosDesdeFld" custom-create="true">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="210" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="a1103" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties><text value="Hasta"/></properties>
+              </component>
+              <component id="a1104" class="com.github.lgooddatepicker.components.DatePicker" binding="recursosHastaFld" custom-create="true">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="210" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+              <grid id="a1200" binding="botonesRecursosPanel" layout-manager="FlowLayout" hgap="8" vgap="0" flow-align="2">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="a1201" class="javax.swing.JButton" binding="cargarRecursosFld">
+                    <constraints/>
+                    <properties><icon value="proyecto/presentation/icons/check.png"/><text value="Cargar"/></properties>
+                  </component>
+                  <component id="a1202" class="javax.swing.JButton" binding="imprimirRecursosFld">
+                    <constraints/>
+                    <properties><icon value="proyecto/presentation/icons/pdf.png"/><text value="Imprimir"/></properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <scrollpane id="a1300">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="530" height="170"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="etched" title="Resultados"/>
+            <children>
+              <component id="a1301" class="javax.swing.JTable" binding="recursosFld">
+                <constraints/>
+                <properties/>
+              </component>
+            </children>
+          </scrollpane>
+          <grid id="a1400" binding="graficoRecursosFld" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="530" height="300"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="etched" title="Gráfico"/>
+            <children/>
+          </grid>
+        </children>
+      </grid>
+      <grid id="b1000" binding="actividadesPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="10">
+        <margin top="10" left="10" bottom="10" right="10"/>
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="etched" title="Actividades"/>
+        <children>
+          <grid id="b1100" binding="filtroActividadesPanel" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="8" vgap="8">
+            <margin top="8" left="8" bottom="8" right="8"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="Fechas desde y hasta"/>
+            <children>
+              <component id="b1101" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties><text value="Desde"/></properties>
+              </component>
+              <component id="b1102" class="com.github.lgooddatepicker.components.DatePicker" binding="actividadesDesdeFld" custom-create="true">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="210" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="b1103" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties><text value="Hasta"/></properties>
+              </component>
+              <component id="b1104" class="com.github.lgooddatepicker.components.DatePicker" binding="actividadesHastaFld" custom-create="true">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="210" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties/>
+              </component>
+              <grid id="b1200" binding="botonesActividadesPanel" layout-manager="FlowLayout" hgap="8" vgap="0" flow-align="2">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="b1201" class="javax.swing.JButton" binding="cargarActividadesFld">
+                    <constraints/>
+                    <properties><icon value="proyecto/presentation/icons/check.png"/><text value="Cargar"/></properties>
+                  </component>
+                  <component id="b1202" class="javax.swing.JButton" binding="imprimirActividadesFld">
+                    <constraints/>
+                    <properties><icon value="proyecto/presentation/icons/pdf.png"/><text value="Imprimir"/></properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <scrollpane id="b1300">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="530" height="170"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="etched" title="Resultados"/>
+            <children>
+              <component id="b1301" class="javax.swing.JTable" binding="actividadesFld">
+                <constraints/>
+                <properties/>
+              </component>
+            </children>
+          </scrollpane>
+          <grid id="b1400" binding="graficoActividadesFld" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="530" height="300"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="etched" title="Gráfico"/>
+            <children/>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

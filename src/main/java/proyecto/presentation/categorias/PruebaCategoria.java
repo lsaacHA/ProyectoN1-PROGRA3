@@ -1,15 +1,17 @@
 package proyecto.presentation.categorias;
 
+import proyecto.logic.Service;
+
 import javax.swing.*;
 
 public class PruebaCategoria {
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Prueba - Categorías");
-
-        View view = new View();
+    public static void main(String[] args) throws Exception {
+        Service service = new Service();
         Model model = new Model();
-        Controller controller = new Controller(view, model);
+        View view = new View();
+        Controller controller = new Controller(model, view, service);
 
+        JFrame frame = new JFrame("Prueba - Categorías");
         frame.setContentPane(view.getPanel());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
